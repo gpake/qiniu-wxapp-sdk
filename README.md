@@ -102,9 +102,10 @@ Page({
           uploadURL: 'https://up.qbox.me',
           domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
           key: 'customFileName.jpg', // 自定义文件 key。如果不设置，默认为使用微信小程序 API 的临时文件名
-          // 以下方法二选一即可，优先级为：uptoken > uptokenURL
+          // 以下方法三选一即可，优先级为：uptoken > uptokenURL > uptokenFunc
           uptoken: 'xxxxxxxxUpToken', // 由其他程序生成七牛 uptoken
           uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+          uptokenFunc: function() {return 'zxxxzaqdf';}
         });
       }
     })
@@ -127,14 +128,16 @@ Page({
 var options = {
   uploadURL: 'https://up.qbox.me',
   domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
-  // 以下方法二选一即可，优先级为：uptoken > uptokenURL
+  // 以下方法三选一即可，优先级为：uptoken > uptokenURL > uptokenFunc
   uptoken: 'xxxxxxxxUpToken', // 由其他程序生成七牛 uptoken
   uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+  uptokenFunc: function() {return 'zxxxzaqdf';}
 };
 qiniuUploder.init(options);
 
 
 // 如果使用了 init 方法，则 upload 函数的 options 可以省略。否则会报错
+// 上传之前会检查 uptoken 是否存在
 qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options]]]);
 // 其中 wxappFilePath，是通过微信小程序官方 API：wx.chooseImage，在 success callback得到 var filePath = res.tempFilePaths[0];
 ```

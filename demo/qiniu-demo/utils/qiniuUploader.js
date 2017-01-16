@@ -5,7 +5,8 @@ var config = {
     qiniuUploadURL: '',
     qiniuImageURLPrefix: '',
     qiniuUploadToken: '',
-    qiniuUploadTokenURL: ''
+    qiniuUploadTokenURL: '',
+    qiniuUploadTokenFunction: null
 }
 
 module.exports = {
@@ -16,6 +17,17 @@ module.exports = {
 // 在整个程序生命周期中，只需要 init 一次即可
 // 如果需要变更参数，再调用 init 即可
 function init(options) {
+    config = {
+        qiniuUploadURL: '',
+        qiniuImageURLPrefix: '',
+        qiniuUploadToken: '',
+        qiniuUploadTokenURL: '',
+        qiniuUploadTokenFunction: null
+    };
+    updateConfigWithOptions(options);
+}
+
+function updateConfigWithOptions(options) {
     if (options.uploadURL) {
         config.qiniuUploadURL = options.uploadURL;
     } else {
@@ -25,9 +37,8 @@ function init(options) {
         config.qiniuUploadToken = options.uptoken;
     } else if (options.uptokenURL) {
         config.qiniuUploadTokenURL = options.uptokenURL;
-    } else {
-        console.error('qiniu uploader need uptoken or uptokenURL');
-        return;
+    } else if(options.uptokenFunc) {
+        config.qiniuUploadTokenFunction = options.uptokenFunc;
     }
     if (options.domain) {
         config.qiniuImageURLPrefix = options.domain;
@@ -35,21 +46,33 @@ function init(options) {
 }
 
 function upload(filePath, success, fail, options) {
+    if (null == filePath) {
+        console.error('qiniu uploader need filePath to upload');
+        return;
+    }
     if (options) {
         init(options);
     }
-    if (!config.qiniuUploadToken) {
+    if (config.qiniuUploadToken) {
+        doUpload(filePath, success, fail, options);
+    } else if (config.qiniuUploadTokenURL) {
         getQiniuToken(function() {
-            doUpload(filePath, success, fail);
+            doUpload(filePath, success, fail, options);
         });
+    } else if (config.qiniuUploadTokenFunction) {
+        config.qiniuUploadToken = config.qiniuUploadTokenFunction();
     } else {
-        doUpload(filePath, success, fail);
+        console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
+        return;
     }
 }
 
-function doUpload(filePath, success, fail) {
+function doUpload(filePath, success, fail, options) {
     var url = config.qiniuUploadURL;
     var fileName = filePath.split('//')[1];
+    if (options && options.key) {
+        fileName = options.key;
+    }
     var formData = {
         'token': config.qiniuUploadToken,
         'key': fileName
@@ -79,7 +102,7 @@ function getQiniuToken(callback) {
   wx.request({
     url: config.qiniuUploadTokenURL,
     success: function (res) {
-      var token = res.data.data.uptoken;
+      var token = res.data.uptoken;
       config.qiniuUploadToken = token;
       if (callback) {
           callback();
