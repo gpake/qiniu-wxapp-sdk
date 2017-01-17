@@ -4,10 +4,10 @@ const qiniuUploader = require("../../utils/qiniuUploader");
 // 初始化七牛相关参数
 function initQiniu() {
   var options = {
-    uploadURL: 'https://up-z1.qbox.me',
-    uptokenURL: 'https://xxx.com/api/uptoken',
+    region: 'NCN', // 华北区
+    uptokenURL: 'https://yourserver.com/api/uptoken',
     // uptoken: 'xxxx',
-    domain: 'http://xxxx.bkt.clouddn.com/'
+    domain: 'http://owzs78.bkt.clouddn.com/'
   };
   qiniuUploader.init(options);
 }
@@ -42,12 +42,12 @@ function didPressChooesImage(that) {
             'imageObject': res
           });
         }, (error) => {
-		      console.error('error: ' + error);
+          console.error('error: ' + JSON.stringify(error));
         });
       }
     }
     // , {
-    //   uploadURL: 'https://up.qbox.me',
+    //   region: 'ECN',
     //   domain: 'balxqjka.btk.clouddn.com',
     //   uptokenURL: 'myServer.cpm/api/uptoken'
     // }
