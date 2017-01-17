@@ -67,7 +67,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 | uploadFile 域名   | https://up.qbox.me （根据存储区域填写）  |
 | downloadFile 域名 | https://baldkf.bkt.clouddn.com |
 
-<a href="#region">
+<a id="region"></a>
 
 存储区域对应 HTTPS 地址，参考[官方文档](https://support.qiniu.com/hc/kb/article/210702)
 
