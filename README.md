@@ -19,7 +19,7 @@ Qiniu-wxapp-SDK 是七牛云在小程序上的实现，网络功能依赖于微�
 
 Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安全，token 建议通过网络从服务端获取，具体生成代码可以参考以下服务端 SDK 的文档。SDK Demo中暂时没有包含这部分。
 
-- [Java](http://developer.qiniu.com/code/v7/sdk/android.html)
+- [Java](http://developer.qiniu.com/code/v7/sdk/java.html)
 - [PHP](http://developer.qiniu.com/code/v7/sdk/php.html)
 - [Python](http://developer.qiniu.com/code/v7/sdk/python.html)
 - [Ruby](http://developer.qiniu.com/code/v6/sdk/ruby.html)
