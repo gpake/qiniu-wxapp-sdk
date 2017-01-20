@@ -2,7 +2,7 @@
 Qiniu-wxapp-SDK
 ============
 
-基于七牛 API 开发的微信小程序 SDK
+基于七牛云 API 开发的微信小程序 SDK
 
 ### 快速导航
 
@@ -15,7 +15,7 @@ Qiniu-wxapp-SDK
 
 ### 概述
 
-Qiniu-wxapp-SDK 是七牛云存储在小程序上的实现，网络功能依赖于微信小程序 API。您可以基于 SDK 方便的在小程序中上传文件至七牛云存储。
+Qiniu-wxapp-SDK 是七牛云在小程序上的实现，网络功能依赖于微信小程序 API。您可以基于 SDK 方便的在小程序中上传文件至七牛云。
 
 Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安全，token 建议通过网络从服务端获取，具体生成代码可以参考以下服务端 SDK 的文档。SDK Demo中暂时没有包含这部分。
 
@@ -39,12 +39,12 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 -   从 github 上下载qiniuUploader.js，导入小程序工程。
 
--   在使用 SDK 之前，您必须先注册一个七牛帐号，并登录控制台获取一对有效的 AccessKey 和 SecretKey，您可以阅读[ 如何接入七牛 ](http://developer.qiniu.com/article/kodo/kodo-first/quickstart.html)和[ 安全机制 ](http://developer.qiniu.com/article/kodo/kodo-developer/index.html#security) 以进一步了解如何正确使用和管理密钥 。
+-   在使用 SDK 之前，您必须先注册一个七牛云帐号，并登录控制台获取一对有效的 AccessKey 和 SecretKey，您可以阅读[ 如何接入七牛 ](http://developer.qiniu.com/article/kodo/kodo-first/quickstart.html)和[ 安全机制 ](http://developer.qiniu.com/article/kodo/kodo-developer/index.html#security) 以进一步了解如何正确使用和管理密钥 。
 
 -   SDK 依赖服务端颁发 uptoken，可以通过以下二种方式实现：
     -   利用[七牛服务端 SDK ](http://developer.qiniu.com/resource/official.html#sdk)构建后端服务（建议的方式）
     -   利用七牛底层 API 构建服务，详见七牛[上传策略](http://developer.qiniu.com/article/developer/security/put-policy.html)和[上传凭证](http://developer.qiniu.com/article/developer/security/upload-token.html)
--   您需要了解您的七牛存储空间设置在那个区域，比如华东，华南等，参见[区域设置](#region)
+-   您需要了解您的七牛`存储空间`设置在那个区域，比如华东，华南等，参见[区域设置](#region)
 
 后端服务应提供一个 URL 地址，供小程序请求该地址后获得 uptoken。请求成功后，服务端应返回如下格式的 json（至少包含 uptoken 字段）：
 
@@ -54,12 +54,12 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 }
 ```
 
-根据你创建的七牛存储空间，把对应的 https 上传地址添加到小程序的访问白名单中，方法如下：
+根据你创建的七牛`存储空间`，把对应的 https 上传地址添加到小程序的访问白名单中，方法如下：
 
->1，登录 [微信公众平台](https://mp.weixin.qq.com/)，前往 **设置 - 开发设置**，点击 **服务器配置** 下的「**修改**」链接。
->2，修改 uploadFile 域名(比如华北 https 上传地址为：https://up-z1.qbox.com，地址不清楚请参见[https地址附录](#address))
->3，如果需要下载文件，则还需要一同设置 **downloadFile 域名**，为你的 bucket 下载地址
->4，保存即可
+>1. 登录 [微信公众平台](https://mp.weixin.qq.com/)，前往 **设置 - 开发设置**，点击 **服务器配置** 下的「**修改**」链接。
+>2. 修改 uploadFile 域名(比如华北 https 上传地址为：`https://up-z1.qbox.com`，地址不清楚请参见[https地址附录](#address))
+>3. 如果需要下载文件，则还需要一同设置 **downloadFile 域名**，为你的 bucket 下载地址
+>4. 保存即可
 
 | 字段名             | 内容                             |
 | --------------- | ------------------------------ |
