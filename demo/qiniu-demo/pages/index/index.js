@@ -7,7 +7,7 @@ function initQiniu() {
     region: 'NCN', // 华北区
     uptokenURL: 'https://yourserver.com/api/uptoken',
     // uptoken: 'xxxx',
-    domain: 'http://owzs78.bkt.clouddn.com/'
+    domain: 'http://owzs78.bkt.clouddn.com'
   };
   qiniuUploader.init(options);
 }
