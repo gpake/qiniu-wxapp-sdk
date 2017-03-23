@@ -5,9 +5,9 @@ const qiniuUploader = require("../../utils/qiniuUploader");
 function initQiniu() {
   var options = {
     region: 'NCN', // 华北区
-    uptokenURL: 'https://yourserver.com/api/uptoken',
+    uptokenURL: 'https://[yourserver.com]/api/uptoken',
     // uptoken: 'xxxx',
-    domain: 'http://owzs78.bkt.clouddn.com'
+    domain: 'http://[yourBucketId].bkt.clouddn.com'
   };
   qiniuUploader.init(options);
 }

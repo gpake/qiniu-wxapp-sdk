@@ -61,6 +61,10 @@ function upload(filePath, success, fail, options) {
         });
     } else if (config.qiniuUploadTokenFunction) {
         config.qiniuUploadToken = config.qiniuUploadTokenFunction();
+        if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+            console.error('qiniu UploadTokenFunction result is null, please check the return value');
+            return
+        }
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
@@ -68,6 +72,10 @@ function upload(filePath, success, fail, options) {
 }
 
 function doUpload(filePath, success, fail, options) {
+    if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+        console.error('qiniu UploadToken is null, please check the init config or networking');
+        return
+    }
     var url = uploadURLFromRegionCode(config.qiniuRegion);
     var fileName = filePath.split('//')[1];
     if (options && options.key) {
@@ -94,7 +102,7 @@ function doUpload(filePath, success, fail, options) {
             }
         },
         fail: function (error) {
-            console.log(error);
+            console.error(error);
             if (fail) {
                 fail(error);
             }
@@ -107,13 +115,17 @@ function getQiniuToken(callback) {
     url: config.qiniuUploadTokenURL,
     success: function (res) {
       var token = res.data.uptoken;
-      config.qiniuUploadToken = token;
-      if (callback) {
-          callback();
+      if (token && token.length > 0) {
+        config.qiniuUploadToken = token;
+        if (callback) {
+            callback();
+        }
+      } else {
+        console.error('qiniuUploader cannot get your token, please check the uptokenURL or server')
       }
     },
     fail: function (error) {
-      console.log(error);
+      console.error('qiniu UploadToken is null, please check the init config or networking: ' + error);
     }
   })
 }
