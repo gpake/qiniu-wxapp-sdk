@@ -8,6 +8,7 @@ function initQiniu() {
     uptokenURL: 'https://[yourserver.com]/api/uptoken',
     // uptoken: 'xxxx',
     domain: 'http://[yourBucketId].bkt.clouddn.com'
+    shouldUseQiniuFileName: false
   };
   qiniuUploader.init(options);
 }
@@ -43,6 +44,9 @@ function didPressChooesImage(that) {
           });
         }, (error) => {
           console.error('error: ' + JSON.stringify(error));
+        }, {
+          // key: 'testKeyNameLSAKDKASJDHKAS'
+          // shouldUseQiniuFileName: true
         });
       }
     }

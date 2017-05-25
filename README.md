@@ -172,7 +172,8 @@ var options = {
   uptokenFunc: function() {
     // do something to make a uptoken
     return 'zxxxzaqdfUpToken';
-  }
+  },
+  shouldUseQiniuFileName: false // 如果是 true，则文件 key 由 qiniu 服务器分配 (全局去重)。默认是 false: 即使用微信产生的 filename
 };
 qiniuUploder.init(options);
 
@@ -180,6 +181,7 @@ qiniuUploder.init(options);
 // 如果使用了 init 方法，则 upload 函数的 options 可以省略。如果没有 init，upload 中也没有 options 则会报错。
 // 这里的 options 和 init 中的传入参数一样，只会修改传入的参数
 // 上传之前会检查 uptoken 是否存在
+// options 参数可以比 init 的时候多出一个参数：[key] 用于指定本次上传文件的名称
 qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options]]]);
 // 其中 wxappFilePath，是通过微信小程序官方 API：wx.chooseImage，在 success callback得到 var filePath = res.tempFilePaths[0];
 ```

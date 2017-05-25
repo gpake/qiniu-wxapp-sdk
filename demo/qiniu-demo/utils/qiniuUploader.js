@@ -6,7 +6,8 @@ var config = {
     qiniuImageURLPrefix: '',
     qiniuUploadToken: '',
     qiniuUploadTokenURL: '',
-    qiniuUploadTokenFunction: null
+    qiniuUploadTokenFunction: null,
+    qiniuShouldUseQiniuFileName: false
 }
 
 module.exports = {
@@ -22,7 +23,8 @@ function init(options) {
         qiniuImageURLPrefix: '',
         qiniuUploadToken: '',
         qiniuUploadTokenURL: '',
-        qiniuUploadTokenFunction: null
+        qiniuUploadTokenFunction: null,
+        qiniuShouldUseQiniuFileName: false
     };
     updateConfigWithOptions(options);
 }
@@ -43,6 +45,7 @@ function updateConfigWithOptions(options) {
     if (options.domain) {
         config.qiniuImageURLPrefix = options.domain;
     }
+    config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
 function upload(filePath, success, fail, options) {
@@ -51,7 +54,7 @@ function upload(filePath, success, fail, options) {
         return;
     }
     if (options) {
-        init(options);
+      updateConfigWithOptions(options);
     }
     if (config.qiniuUploadToken) {
         doUpload(filePath, success, fail, options);
@@ -82,9 +85,11 @@ function doUpload(filePath, success, fail, options) {
         fileName = options.key;
     }
     var formData = {
-        'token': config.qiniuUploadToken,
-        'key': fileName
+        'token': config.qiniuUploadToken
     };
+    if (!config.qiniuShouldUseQiniuFileName) {
+      formData['key'] = fileName
+    }
     wx.uploadFile({
         url: url,
         filePath: filePath,
