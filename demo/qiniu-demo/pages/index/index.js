@@ -44,14 +44,16 @@ function didPressChooesImage(that) {
           });
         }, (error) => {
           console.error('error: ' + JSON.stringify(error));
-        }, {
-            // region: 'NCN', // 华北区
-            // uptokenURL: 'https://[yourserver.com]/api/uptoken',
-            // domain: 'http://[yourBucketId].bkt.clouddn.com',
-            // shouldUseQiniuFileName: false
-            // key: 'testKeyNameLSAKDKASJDHKAS'
-            // uptokenURL: 'myServer.com/api/uptoken'
-        });
+        }
+        // , {
+        //     region: 'NCN', // 华北区
+        //     uptokenURL: 'https://[yourserver.com]/api/uptoken',
+        //     domain: 'http://[yourBucketId].bkt.clouddn.com',
+        //     shouldUseQiniuFileName: false
+        //     key: 'testKeyNameLSAKDKASJDHKAS'
+        //     uptokenURL: 'myServer.com/api/uptoken'
+        // }
+        );
       }
     })
 }
