@@ -96,15 +96,22 @@ function doUpload(filePath, success, fail, options) {
         name: 'file',
         formData: formData,
         success: function (res) {
-            var dataString = res.data
+          var dataString = res.data
+          try {
             var dataObject = JSON.parse(dataString);
             //do something
             var imageUrl = config.qiniuImageURLPrefix + '/' + dataObject.key;
             dataObject.imageURL = imageUrl;
             console.log(dataObject);
             if (success) {
-                success(dataObject);
+              success(dataObject);
             }
+          } catch(e) {
+            console.log('parse JSON failed, origin String is: ' + dataString)
+            if (fail) {
+              fail(e);
+            }
+          }
         },
         fail: function (error) {
             console.error(error);
