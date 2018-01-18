@@ -175,7 +175,7 @@ var options = {
   },
   shouldUseQiniuFileName: false // 如果是 true，则文件 key 由 qiniu 服务器分配 (全局去重)。默认是 false: 即使用微信产生的 filename
 };
-qiniuUploder.init(options);
+qiniuUploader.init(options);
 
 
 // 如果使用了 init 方法，则 upload 函数的 options 可以省略。如果没有 init，upload 中也没有 options 则会报错。
