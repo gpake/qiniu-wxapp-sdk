@@ -68,6 +68,7 @@ function upload(filePath, success, fail, options) {
             console.error('qiniu UploadTokenFunction result is null, please check the return value');
             return
         }
+        doUpload(filePath, success, fail, options);
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
