@@ -48,80 +48,76 @@ function updateConfigWithOptions(options) {
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
-function upload(filePath, success, fail, options) {
-    if (null == filePath) {
-        console.error('qiniu uploader need filePath to upload');
-        return;
+function upload(parameter) {
+    if (parameter.filePath == null) {
+      console.error('qiniu uploader need filePath to upload')
+      return
     }
-    if (options) {
-      updateConfigWithOptions(options);
+    if (parameter.options) {
+      updateConfigWithOptions(parameter.options)
     }
     if (config.qiniuUploadToken) {
-        doUpload(filePath, success, fail, options);
+      doUpload(parameter)
     } else if (config.qiniuUploadTokenURL) {
-        getQiniuToken(function() {
-            doUpload(filePath, success, fail, options);
-        });
+      getQiniuToken(function () {
+        doUpload(parameter)
+      })
     } else if (config.qiniuUploadTokenFunction) {
-        config.qiniuUploadToken = config.qiniuUploadTokenFunction();
-        if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
-            console.error('qiniu UploadTokenFunction result is null, please check the return value');
-            return
-        }
-        doUpload(filePath, success, fail, options);
-    } else {
-        console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
-        return;
-    }
-}
-
-function doUpload(filePath, success, fail, options) {
-    if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
-        console.error('qiniu UploadToken is null, please check the init config or networking');
+      config.qiniuUploadToken = config.qiniuUploadTokenFunction()
+      if (config.qiniuUploadToken == null && config.qiniuUploadToken.length > 0) {
+        console.error('qiniu UploadTokenFunction result is null, please check the return value')
         return
+      }
+      doUpload(parameter)
+    } else {
+      console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]')
+      return null
     }
-    var url = uploadURLFromRegionCode(config.qiniuRegion);
-    var fileName = filePath.split('//')[1];
-    if (options && options.key) {
-        fileName = options.key;
+  }
+
+function doUpload(parameter) {
+    if (config.qiniuUploadToken == null && config.qiniuUploadToken.length > 0) {
+      console.error('qiniu UploadToken is null, please check the init config or networking')
+      return
+    }
+    var url = uploadURLFromRegionCode(config.qiniuRegion)
+    var fileName = parameter.filePath.split('//')[1]
+    if (parameter.options && parameter.options.key) {
+      fileName = parameter.options.key
     }
     var formData = {
-        'token': config.qiniuUploadToken
-    };
+      'token': config.qiniuUploadToken
+    }
     if (!config.qiniuShouldUseQiniuFileName) {
       formData['key'] = fileName
     }
-    wx.uploadFile({
-        url: url,
-        filePath: filePath,
-        name: 'file',
-        formData: formData,
-        success: function (res) {
-          var dataString = res.data
-          try {
-            var dataObject = JSON.parse(dataString);
-            //do something
-            var imageUrl = config.qiniuImageURLPrefix + '/' + dataObject.key;
-            dataObject.imageURL = imageUrl;
-            console.log(dataObject);
-            if (success) {
-              success(dataObject);
-            }
-          } catch(e) {
-            console.log('parse JSON failed, origin String is: ' + dataString)
-            if (fail) {
-              fail(e);
-            }
-          }
-        },
-        fail: function (error) {
-            console.error(error);
-            if (fail) {
-                fail(error);
-            }
+    const uploadTask = wx.uploadFile({
+      url: url,
+      filePath: parameter.filePath,
+      name: 'file',
+      formData: formData,
+      success: (res) => {
+        var dataString = res.data
+        try {
+          var dataObject = JSON.parse(dataString)
+          //do something
+          var imageUrl = config.qiniuImageURLPrefix + '/' + dataObject.key
+          dataObject.imageURL = imageUrl
+          parameter.success && parameter.success(dataObject)
+        } catch (e) {
+          console.log('parse JSON failed, origin String is: ' + dataString)
+          parameter.fail && parameter.fail(e)
         }
+      },
+      fail: (error) => {
+        parameter.fail && parameter.fail(error)
+      }
     })
-}
+
+    uploadTask.onProgressUpdate((res) => {
+      parameter.progress && parameter.progress(res)
+    })
+  }
 
 function getQiniuToken(callback) {
   wx.request({
