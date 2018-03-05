@@ -116,21 +116,7 @@ Page({
       count: 1,
       success: function (res) {
         var filePath = res.tempFilePaths[0];
-        // 交给七牛上传
-        qiniuUploader.upload(filePath, (res) => {
-          // 每个文件上传成功后,处理相关的事情
-          // 其中 info 是文件上传成功后，服务端返回的json，形式如
-          // {
-          //    "hash": "Fh8xVqod2MQ1mocfI4S4KpRL6D98",
-          //    "key": "gogopher.jpg"
-          //  }
-          // 参考http://developer.qiniu.com/docs/v6/api/overview/up/response/simple-response.html
-          that.setData({
-            'imageURL': res.imageURL,
-          });
-        }, (error) => {
-		  console.log('error: ' + error);
-        }, {
+	let options = {
           region: 'ECN',
           domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
           key: 'customFileName.jpg', // [非必须]自定义文件 key。如果不设置，默认为使用微信小程序 API 的临时文件名
@@ -138,7 +124,31 @@ Page({
           uptoken: '[yourTokenString]', // 由其他程序生成七牛 uptoken
           uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "[yourTokenString]"}
           uptokenFunc: function() {return '[yourTokenString]';}
-        });
+        }
+	
+        // 交给七牛上传
+	qiniuUploader.upload({
+          filePath,
+          options,
+          progress: (res) => {
+            console.log('上传进度', res.progress)
+          },
+          success: (res) => {
+            // 每个文件上传成功后,处理相关的事情
+            // 其中 info 是文件上传成功后，服务端返回的json，形式如
+            // {
+            //    "hash": "Fh8xVqod2MQ1mocfI4S4KpRL6D98",
+            //    "key": "gogopher.jpg"
+            //  }
+            // 参考http://developer.qiniu.com/docs/v6/api/overview/up/response/simple-response.html
+            that.setData({
+              'imageURL': res.imageURL,
+            });
+          },
+          fail: (error) => {
+            console.error('error: ' + JSON.stringify(error))
+          }
+      	})
       }
     })
   }
