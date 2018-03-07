@@ -138,6 +138,10 @@ Page({
           uptoken: '[yourTokenString]', // 由其他程序生成七牛 uptoken
           uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "[yourTokenString]"}
           uptokenFunc: function() {return '[yourTokenString]';}
+        }, (res) => {
+            console.log('上传进度', res.progress)
+            console.log('已经上传的数据长度', res.totalBytesSent)
+            console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
         });
       }
     })

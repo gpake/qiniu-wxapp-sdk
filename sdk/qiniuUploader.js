@@ -48,7 +48,7 @@ function updateConfigWithOptions(options) {
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
-function upload(filePath, success, fail, options) {
+function upload(filePath, success, fail, options, progress) {
     if (null == filePath) {
         console.error('qiniu uploader need filePath to upload');
         return;
@@ -57,10 +57,10 @@ function upload(filePath, success, fail, options) {
       updateConfigWithOptions(options);
     }
     if (config.qiniuUploadToken) {
-        doUpload(filePath, success, fail, options);
+        doUpload(filePath, success, fail, options, progress);
     } else if (config.qiniuUploadTokenURL) {
         getQiniuToken(function() {
-            doUpload(filePath, success, fail, options);
+            doUpload(filePath, success, fail, options, progress);
         });
     } else if (config.qiniuUploadTokenFunction) {
         config.qiniuUploadToken = config.qiniuUploadTokenFunction();
@@ -68,14 +68,14 @@ function upload(filePath, success, fail, options) {
             console.error('qiniu UploadTokenFunction result is null, please check the return value');
             return
         }
-        doUpload(filePath, success, fail, options);
+        doUpload(filePath, success, fail, options, progress);
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
     }
 }
 
-function doUpload(filePath, success, fail, options) {
+function doUpload(filePath, success, fail, options, progress) {
     if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
         console.error('qiniu UploadToken is null, please check the init config or networking');
         return
@@ -91,7 +91,7 @@ function doUpload(filePath, success, fail, options) {
     if (!config.qiniuShouldUseQiniuFileName) {
       formData['key'] = fileName
     }
-    wx.uploadFile({
+    var uploadTask = wx.uploadFile({
         url: url,
         filePath: filePath,
         name: 'file',
@@ -120,6 +120,10 @@ function doUpload(filePath, success, fail, options) {
                 fail(error);
             }
         }
+    })
+
+    uploadTask.onProgressUpdate((res) => {
+        progress && progress(res)
     })
 }
 
