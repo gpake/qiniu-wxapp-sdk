@@ -48,7 +48,7 @@ function updateConfigWithOptions(options) {
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
-function upload(filePath, success, fail, options) {
+function upload(filePath, success, fail, options, progress) {
     if (null == filePath) {
         console.error('qiniu uploader need filePath to upload');
         return;
@@ -57,10 +57,10 @@ function upload(filePath, success, fail, options) {
       updateConfigWithOptions(options);
     }
     if (config.qiniuUploadToken) {
-        doUpload(filePath, success, fail, options);
+        doUpload(filePath, success, fail, options, progress);
     } else if (config.qiniuUploadTokenURL) {
         getQiniuToken(function() {
-            doUpload(filePath, success, fail, options);
+            doUpload(filePath, success, fail, options, progress);
         });
     } else if (config.qiniuUploadTokenFunction) {
         config.qiniuUploadToken = config.qiniuUploadTokenFunction();
@@ -68,13 +68,14 @@ function upload(filePath, success, fail, options) {
             console.error('qiniu UploadTokenFunction result is null, please check the return value');
             return
         }
+        doUpload(filePath, success, fail, options, progress);
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
     }
 }
 
-function doUpload(filePath, success, fail, options) {
+function doUpload(filePath, success, fail, options, progress) {
     if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
         console.error('qiniu UploadToken is null, please check the init config or networking');
         return
@@ -90,13 +91,16 @@ function doUpload(filePath, success, fail, options) {
     if (!config.qiniuShouldUseQiniuFileName) {
       formData['key'] = fileName
     }
-    wx.uploadFile({
+    var uploadTask = wx.uploadFile({
         url: url,
         filePath: filePath,
         name: 'file',
         formData: formData,
         success: function (res) {
           var dataString = res.data
+          if(res.data.hasOwnProperty('type') && res.data.type === 'Buffer'){
+            dataString = String.fromCharCode.apply(null, res.data.data)
+          }          
           try {
             var dataObject = JSON.parse(dataString);
             //do something
@@ -119,6 +123,10 @@ function doUpload(filePath, success, fail, options) {
                 fail(error);
             }
         }
+    })
+
+    uploadTask.onProgressUpdate((res) => {
+        progress && progress(res)
     })
 }
 
@@ -149,7 +157,8 @@ function uploadURLFromRegionCode(code) {
         case 'NCN': uploadURL = 'https://up-z1.qbox.me'; break;
         case 'SCN': uploadURL = 'https://up-z2.qbox.me'; break;
         case 'NA': uploadURL = 'https://up-na0.qbox.me'; break;
-        default: console.error('please make the region is with one of [ECN, SCN, NCN, NA]');
+        case 'ASG': uploadURL = 'https://up-as0.qbox.me'; break;
+        default: console.error('please make the region is with one of [ECN, SCN, NCN, NA, ASG]');
     }
     return uploadURL;
 }

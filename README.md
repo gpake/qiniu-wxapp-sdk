@@ -4,6 +4,8 @@ Qiniu-wxapp-SDK
 
 基于七牛云 API 开发的微信小程序 SDK
 
+**2018.03.15：@ZhaZhengRefn 发现七牛上传返回数据变成了 charcode，暂时没有发现微信或七牛有修改说明，所以做出暂时性处理，请更新**
+
 ### 快速导航
 
 - [准备工作](#prepare)
@@ -71,12 +73,13 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 存储区域对应 HTTPS 地址，参考[官方文档](https://support.qiniu.com/hc/kb/article/210702)
 
-| 存储区域 | 区域代码 | HTTPS 地址               |
-| ---- | ---- | ---------------------- |
-| 华东   | ECN  | https://up.qbox.me     |
-| 华北   | NCN  | https://up-z1.qbox.me  |
-| 华南   | SCN  | https://up-z2.qbox.me  |
-| 北美   | NA   | https://up-na0.qbox.me |
+| 存储区域 | 区域代码 | HTTPS 地址             |
+| -------- | -------- | ---------------------- |
+| 华东     | ECN      | https://up.qbox.me     |
+| 华北     | NCN      | https://up-z1.qbox.me  |
+| 华南     | SCN      | https://up-z2.qbox.me  |
+| 北美     | NA       | https://up-na0.qbox.me |
+| 新加坡   | ASG      | https://up-as0.qbox.me |
 
 **注意！！**目前微信限制每月只能修改三次域名白名单。
 
@@ -165,7 +168,7 @@ Page({
 ```javascript
 var options = {
   region: 'East', // 是你注册bucket的时候选择的区域的代码
-  // ECN, SCN, NCN, NA，分别对应七牛的：华东，华南，华北，北美四个区域
+  // ECN, SCN, NCN, NA, ASG，分别对应七牛的：华东，华南，华北，北美，新加坡 5 个区域
   // 详情可以参见「说明」部分的第一条
   
   domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
@@ -186,7 +189,7 @@ qiniuUploader.init(options);
 // 这里的 options 和 init 中的传入参数一样，只会修改传入的参数
 // 上传之前会检查 uptoken 是否存在
 // options 参数可以比 init 的时候多出一个参数：[key] 用于指定本次上传文件的名称
-qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options]]]);
+qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options, [progress]]]]);
 // 其中 wxappFilePath，是通过微信小程序官方 API：wx.chooseImage，在 success callback得到 var filePath = res.tempFilePaths[0];
 ```
 
@@ -194,15 +197,15 @@ qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options]
 ### 说明
 
 1. 对于存储空间的存储区域，[创建存储空间](https://portal.qiniu.com/bucket/create)的时候可以选择。
-   1. 当前一共有四个区域可以选择：[华东，华北，华南，北美]，对应着不同的服务器地址
+   1. 当前一共有 5 个区域可以选择：[华东，华北，华南，北美，新加坡]，对应着不同的服务器地址
    2. 如果你不知道在哪里看当前空间的存储区域，可以登录七牛后台，在[这个页面的右下角](https://portal.qiniu.com/bucket)查看
    3. **对于存储区域和 options 中 region 代码可以参考[这个表格](#region)**
 2. SDK 依赖 uptoken，可以直接设置 `uptoken`  、通过提供 Ajax 请求地址 `uptokenURL` 或者通过提供一个能够返回 uptoken 的函数 `uptoken_func` 实现。
    - 如果没用设置过uptoken, uptoken_url 两个参数中必须有一个被设置
-   - 如果提供了多个，其优先级为 uptoken > uptoken_url
+   - 如果提供了多个，其优先级为：uptoken > uptokenURL > uptokenFunc
    - 其中 uptoken 是直接提供上传凭证，uptoken_url 是提供了获取上传凭证的地址
    - uptoken : '<Your upload token>', // uptoken 是上传凭证，由其他程序生成
-   - uptoken_url: '/uptoken',                // Ajax 请求 uptoken 的 Url，**强烈建议设置**（服务端提供）
+   - uptoken_url: '/uptoken',                // Ajax 请求 uptoken 的 Url，**强烈建议设置**（服务端提供），取值的路径为：`res.data.uptoken`
 3. 如果您想了解更多七牛的上传策略，建议您仔细阅读 [七牛官方文档-上传](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#up)。
    七牛的上传策略是在后端服务指定的。
 4. 如果您想了解更多七牛的图片处理，建议您仔细阅读 [七牛官方文档-图片处理](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#image)
