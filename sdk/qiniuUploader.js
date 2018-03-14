@@ -98,6 +98,9 @@ function doUpload(filePath, success, fail, options, progress) {
         formData: formData,
         success: function (res) {
           var dataString = res.data
+          if(res.data.hasOwnProperty('type') && res.data.type === 'Buffer'){
+            dataString = String.fromCharCode.apply(null, res.data.data)
+          }          
           try {
             var dataObject = JSON.parse(dataString);
             //do something
