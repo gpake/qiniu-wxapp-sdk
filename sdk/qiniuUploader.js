@@ -48,7 +48,7 @@ function updateConfigWithOptions(options) {
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
-function upload(filePath, success, fail, options, progress) {
+function upload(filePath, success, fail, options, progress, cancelTask) {
     if (null == filePath) {
         console.error('qiniu uploader need filePath to upload');
         return;
@@ -57,10 +57,10 @@ function upload(filePath, success, fail, options, progress) {
       updateConfigWithOptions(options);
     }
     if (config.qiniuUploadToken) {
-        doUpload(filePath, success, fail, options, progress);
+        doUpload(filePath, success, fail, options, progress, cancelTask);
     } else if (config.qiniuUploadTokenURL) {
         getQiniuToken(function() {
-            doUpload(filePath, success, fail, options, progress);
+            doUpload(filePath, success, fail, options, progress, cancelTask);
         });
     } else if (config.qiniuUploadTokenFunction) {
         config.qiniuUploadToken = config.qiniuUploadTokenFunction();
@@ -68,14 +68,14 @@ function upload(filePath, success, fail, options, progress) {
             console.error('qiniu UploadTokenFunction result is null, please check the return value');
             return
         }
-        doUpload(filePath, success, fail, options, progress);
+        doUpload(filePath, success, fail, options, progress, cancelTask);
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
     }
 }
 
-function doUpload(filePath, success, fail, options, progress) {
+function doUpload(filePath, success, fail, options, progress, cancelTask) {
     if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
         console.error('qiniu UploadToken is null, please check the init config or networking');
         return
@@ -100,7 +100,7 @@ function doUpload(filePath, success, fail, options, progress) {
           var dataString = res.data
           if(res.data.hasOwnProperty('type') && res.data.type === 'Buffer'){
             dataString = String.fromCharCode.apply(null, res.data.data)
-          }          
+          }
           try {
             var dataObject = JSON.parse(dataString);
             //do something
@@ -127,6 +127,10 @@ function doUpload(filePath, success, fail, options, progress) {
 
     uploadTask.onProgressUpdate((res) => {
         progress && progress(res)
+    })
+
+    cancelTask && cancelTask(() => {
+        uploadTask.abort()
     })
 }
 
