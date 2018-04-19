@@ -6,7 +6,7 @@ function initQiniu() {
   var options = {
     region: 'NCN', // 华北区
     uptokenURL: 'https://[yourserver.com]/api/uptoken',
-    // uptoken: 'xxxx',
+      // uptoken: 'xxx',
     domain: 'http://[yourBucketId].bkt.clouddn.com',
     shouldUseQiniuFileName: false
   };
@@ -27,7 +27,10 @@ Page({
   didPressChooesImage: function() {
     var that = this;
     didPressChooesImage(that);
-  }
+  },
+    didCancelTask: function() {
+      this.data.cancelTask()
+    }
 });
 
 function didPressChooesImage(that) {
@@ -58,7 +61,7 @@ function didPressChooesImage(that) {
           console.log('上传进度', progress.progress)
             console.log('已经上传的数据长度', progress.totalBytesSent)
             console.log('预期需要上传的数据总长度', progress.totalBytesExpectedToSend)
-        }
+        }, cancelTask => that.setData({cancelTask})
         );
       }
     })

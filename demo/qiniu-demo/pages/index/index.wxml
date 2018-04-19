@@ -4,10 +4,11 @@
   <view class="image-container">
     <image class="image" src="{{imageObject.imageURL}}" mode="aspectFit"></image>
   </view>
-  
+
   <view class="data">
     hash: <text>{{imageObject.hash}}\n\n</text>
     key: <text>{{imageObject.key}}\n\n</text>
     imageURL: <text>{{imageObject.imageURL}}</text>
   </view>
+  <button bindtap='didCancelTask'>取消任务</button>
 </view>
