@@ -75,11 +75,11 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 | 存储区域 | 区域代码 | HTTPS 地址             |
 | -------- | -------- | ---------------------- |
-| 华东     | ECN      | https://up.qbox.me     |
-| 华北     | NCN      | https://up-z1.qbox.me  |
-| 华南     | SCN      | https://up-z2.qbox.me  |
-| 北美     | NA       | https://up-na0.qbox.me |
-| 新加坡   | ASG      | https://up-as0.qbox.me |
+| 华东     | ECN      | https://upload.qiniup.com    |
+| 华北     | NCN      | https://upload-z1.qiniup.com  |
+| 华南     | SCN      | https://upload-z2.qiniup.com  |
+| 北美     | NA       | https://upload-na0.qiniup.com |
+| 东南亚   | ASG      | https://upload-as0.qiniup.com |
 
 **注意！！**目前微信限制每月只能修改三次域名白名单。
 
