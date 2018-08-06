@@ -59,14 +59,14 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 根据你创建的七牛`存储空间`，把对应的 https 上传地址添加到小程序的访问白名单中，方法如下：
 
 >1. 登录 [微信公众平台](https://mp.weixin.qq.com/)，前往 **设置 - 开发设置**，点击 **服务器配置** 下的「**修改**」链接。
->2. 修改 uploadFile 域名(比如华北 https 上传地址为：`https://up-z1.qbox.me`，地址不清楚请参见[https地址附录](#region))
+>2. 修改 uploadFile 域名(比如华北 https 上传地址为：`https://upload-z1.qiniup.com`，地址不清楚请参见[https地址附录](#region))
 >3. 如果需要下载文件，则还需要一同设置 **downloadFile 域名**，为你的 bucket 下载地址
 >4. 保存即可
 
 | 字段名             | 内容                             |
 | --------------- | ------------------------------ |
 | request 域名      | https://yourServce.com         |
-| uploadFile 域名   | https://up.qbox.me （根据存储区域填写）  |
+| uploadFile 域名   | https://upload.qiniup.com （根据存储区域填写）  |
 | downloadFile 域名 | https://baldkf.bkt.clouddn.com |
 
 <a id="region"></a>
@@ -75,11 +75,11 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 | 存储区域 | 区域代码 | HTTPS 地址             |
 | -------- | -------- | ---------------------- |
-| 华东     | ECN      | https://up.qbox.me     |
-| 华北     | NCN      | https://up-z1.qbox.me  |
-| 华南     | SCN      | https://up-z2.qbox.me  |
-| 北美     | NA       | https://up-na0.qbox.me |
-| 新加坡   | ASG      | https://up-as0.qbox.me |
+| 华东     | ECN      | https://upload.qiniup.com    |
+| 华北     | NCN      | https://upload-z1.qiniup.com  |
+| 华南     | SCN      | https://upload-z2.qiniup.com  |
+| 北美     | NA       | https://upload-na0.qiniup.com |
+| 东南亚   | ASG      | https://upload-as0.qiniup.com |
 
 **注意！！**目前微信限制每月只能修改三次域名白名单。
 
