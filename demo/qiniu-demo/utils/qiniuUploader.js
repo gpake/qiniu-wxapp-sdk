@@ -2,6 +2,7 @@
 (function() {
 
 var config = {
+    qiniuKey: '',
     qiniuRegion: '',
     qiniuImageURLPrefix: '',
     qiniuUploadToken: '',
@@ -19,6 +20,7 @@ module.exports = {
 // 如果需要变更参数，再调用 init 即可
 function init(options) {
     config = {
+        qiniuKey: '',
         qiniuRegion: '',
         qiniuImageURLPrefix: '',
         qiniuUploadToken: '',
@@ -44,6 +46,9 @@ function updateConfigWithOptions(options) {
     }
     if (options.domain) {
         config.qiniuImageURLPrefix = options.domain;
+    }
+    if (options.key) {
+        config.qiniuKey = options.key;
     }
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
@@ -81,7 +86,7 @@ function doUpload(filePath, success, fail, options, progress, cancelTask) {
         return
     }
     var url = uploadURLFromRegionCode(config.qiniuRegion);
-    var fileName = filePath.split('//')[1];
+    var fileName = config.qiniuKey || filePath.split('//')[1];
     if (options && options.key) {
         fileName = options.key;
     }
