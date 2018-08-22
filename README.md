@@ -75,13 +75,13 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 | 存储区域 | 区域代码 | HTTPS 地址             |
 | -------- | -------- | ---------------------- |
-| 华东     | ECN      | https://up.qbox.me     |
-| 华北     | NCN      | https://up-z1.qbox.me  |
-| 华南     | SCN      | https://up-z2.qbox.me  |
-| 北美     | NA       | https://up-na0.qbox.me |
-| 新加坡   | ASG      | https://up-as0.qbox.me |
+| 华东     | ECN      | https://up.qiniup.com     |
+| 华北     | NCN      | https://up-z1.qiniup.com  |
+| 华南     | SCN      | https://up-z2.qiniup.com  |
+| 北美     | NA       | https://up-na0.qiniup.com |
+| 新加坡   | ASG      | https://up-as0.qiniup.com |
 
-**注意！！**目前微信限制每月只能修改三次域名白名单。
+**注意！！**目前微信限制每月只能修改5次域名白名单。
 
 <a id="usage"></a>
 ### 安装
@@ -170,7 +170,7 @@ var options = {
   region: 'East', // 是你注册bucket的时候选择的区域的代码
   // ECN, SCN, NCN, NA, ASG，分别对应七牛的：华东，华南，华北，北美，新加坡 5 个区域
   // 详情可以参见「说明」部分的第一条
-  
+
   domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
 
   // 以下方法三选一即可，优先级为：uptoken > uptokenURL > uptokenFunc
