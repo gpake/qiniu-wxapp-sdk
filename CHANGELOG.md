@@ -2,6 +2,11 @@
 Qiniu-wxapp-SDK Change Log
 ============
 
+2019.01.20
+---
+
+* 更新七牛域名为 `*.qiniup.com`，替换之前的 `*.qbox.me`
+
 2018.03.05
 ---
 

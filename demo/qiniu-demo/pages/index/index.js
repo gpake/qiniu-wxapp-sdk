@@ -5,8 +5,8 @@ const qiniuUploader = require("../../utils/qiniuUploader");
 function initQiniu() {
   var options = {
     region: 'NCN', // 华北区
-    uptokenURL: 'https://[yourserver.com]/api/uptoken',
-      // uptoken: 'xxx',
+    uptokenURL: https://[yourserver.com]/api/uptoken',
+    // uptoken: 'xxxx=',
     domain: 'http://[yourBucketId].bkt.clouddn.com',
     shouldUseQiniuFileName: false
   };
@@ -45,6 +45,7 @@ function didPressChooesImage(that) {
           that.setData({
             'imageObject': res
           });
+          console.log('file url is: ' + res.fileUrl)
         }, (error) => {
           console.error('error: ' + JSON.stringify(error));
         },

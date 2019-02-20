@@ -98,14 +98,16 @@ function doUpload(filePath, success, fail, options, progress, cancelTask) {
         formData: formData,
         success: function (res) {
           var dataString = res.data
-          if(res.data.hasOwnProperty('type') && res.data.type === 'Buffer'){
-            dataString = String.fromCharCode.apply(null, res.data.data)
-          }
+        //   // this if case is a compatibility with wechat server returned a charcode, but was fixed
+        //   if(res.data.hasOwnProperty('type') && res.data.type === 'Buffer'){
+        //     dataString = String.fromCharCode.apply(null, res.data.data)
+        //   }
           try {
             var dataObject = JSON.parse(dataString);
             //do something
-            var imageUrl = config.qiniuImageURLPrefix + '/' + dataObject.key;
-            dataObject.imageURL = imageUrl;
+            var fileUrl = config.qiniuImageURLPrefix + '/' + dataObject.key;
+            dataObject.fileUrl = fileUrl
+            dataObject.imageURL = fileUrl;
             console.log(dataObject);
             if (success) {
               success(dataObject);
@@ -157,11 +159,11 @@ function getQiniuToken(callback) {
 function uploadURLFromRegionCode(code) {
     var uploadURL = null;
     switch(code) {
-        case 'ECN': uploadURL = 'https://up.qbox.me'; break;
-        case 'NCN': uploadURL = 'https://up-z1.qbox.me'; break;
-        case 'SCN': uploadURL = 'https://up-z2.qbox.me'; break;
-        case 'NA': uploadURL = 'https://up-na0.qbox.me'; break;
-        case 'ASG': uploadURL = 'https://up-as0.qbox.me'; break;
+        case 'ECN': uploadURL = 'https://up.qiniup.com'; break;
+        case 'NCN': uploadURL = 'https://up-z1.qiniup.com'; break;
+        case 'SCN': uploadURL = 'https://up-z2.qiniup.com'; break;
+        case 'NA': uploadURL = 'https://up-na0.qiniup.com'; break;
+        case 'ASG': uploadURL = 'https://up-as0.qiniup.com'; break;
         default: console.error('please make the region is with one of [ECN, SCN, NCN, NA, ASG]');
     }
     return uploadURL;
