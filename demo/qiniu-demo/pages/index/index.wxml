@@ -1,8 +1,13 @@
 <!--index.wxml-->
 <view class="main">
   <button bindtap='didPressChooesImage'>上传图片</button>
+  <button bindtap='didPressUploadBase64'>上传 base64 图片</button>
   <view class="image-container">
     <image class="image" src="{{imageObject.imageURL}}" mode="aspectFit"></image>
+  </view>
+
+  <view class="image-container">
+    <image class="image" src="{{base64ImageObject.imageURL}}" mode="aspectFit"></image>
   </view>
 
   <view class="data">

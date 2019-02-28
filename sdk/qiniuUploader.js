@@ -13,6 +13,7 @@ var config = {
 module.exports = {
     init: init,
     upload: upload,
+    uploadBase64: uploadBase64,
 }
 
 // 在整个程序生命周期中，只需要 init 一次即可
@@ -46,6 +47,62 @@ function updateConfigWithOptions(options) {
         config.qiniuImageURLPrefix = options.domain;
     }
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
+}
+
+function uploadBase64(data, success, fail, options, cancelTask) {
+  if (!data) {
+    console.error('qiniu uploader need filePath to upload');
+    return;
+  }
+
+  if (options) {
+    updateConfigWithOptions(options);
+  }
+  
+  if (config.qiniuUploadToken) {
+    doUploadBase64(data, success, fail, options, cancelTask);
+  } else if (config.qiniuUploadTokenURL) {
+    getQiniuToken(function () {
+      doUploadBase64(data, success, fail, options, cancelTask);
+    });
+  } else if (config.qiniuUploadTokenFunction) {
+    config.qiniuUploadToken = config.qiniuUploadTokenFunction();
+    if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+      console.error('qiniu UploadTokenFunction result is null, please check the return value');
+      return
+    }
+    doUploadBase64(data, success, fail, options, cancelTask);
+  } else {
+    console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
+    return;
+  }
+}
+
+function doUploadBase64(data, success, fail, options, cancelTask) {
+  if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+    console.error('qiniu UploadToken is null, please check the init config or networking');
+    return
+  }
+  var url = uploadURLFromRegionCode(config.qiniuRegion);
+
+  const requestTask = wx.request({
+    url: url + '/putb64/-1',
+    method: 'POST',
+    header: {
+      'content-type': 'application/octet-stream',
+      'Authorization': 'UpToken ' + config.qiniuUploadToken,
+    },
+    data: data,
+    dataType: 'json',
+    success,
+    fail,
+  });
+
+  if (typeof requestTask.abort === 'function') {
+    cancelTask && cancelTask(() => {
+      requestTask.abort()
+    })
+  }
 }
 
 function upload(filePath, success, fail, options, progress, cancelTask) {
