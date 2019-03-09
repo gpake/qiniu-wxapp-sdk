@@ -48,7 +48,7 @@ function updateConfigWithOptions(options) {
     config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName
 }
 
-function upload(filePath, success, fail, options, progress, cancelTask) {
+function upload(filePath, success, fail, options, progress, cancelTask, before, complete) {
     if (null == filePath) {
         console.error('qiniu uploader need filePath to upload');
         return;
@@ -57,10 +57,10 @@ function upload(filePath, success, fail, options, progress, cancelTask) {
       updateConfigWithOptions(options);
     }
     if (config.qiniuUploadToken) {
-        doUpload(filePath, success, fail, options, progress, cancelTask);
+        doUpload(filePath, success, fail, options, progress, cancelTask, before, complete);
     } else if (config.qiniuUploadTokenURL) {
         getQiniuToken(function() {
-            doUpload(filePath, success, fail, options, progress, cancelTask);
+            doUpload(filePath, success, fail, options, progress, cancelTask, before, complete);
         });
     } else if (config.qiniuUploadTokenFunction) {
         config.qiniuUploadToken = config.qiniuUploadTokenFunction();
@@ -68,14 +68,14 @@ function upload(filePath, success, fail, options, progress, cancelTask) {
             console.error('qiniu UploadTokenFunction result is null, please check the return value');
             return
         }
-        doUpload(filePath, success, fail, options, progress, cancelTask);
+        doUpload(filePath, success, fail, options, progress, cancelTask, before, complete);
     } else {
         console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
         return;
     }
 }
 
-function doUpload(filePath, success, fail, options, progress, cancelTask) {
+function doUpload(filePath, success, fail, options, progress, cancelTask, before, complete) {
     if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
         console.error('qiniu UploadToken is null, please check the init config or networking');
         return
@@ -91,6 +91,7 @@ function doUpload(filePath, success, fail, options, progress, cancelTask) {
     if (!config.qiniuShouldUseQiniuFileName) {
       formData['key'] = fileName
     }
+    before && before();
     var uploadTask = wx.uploadFile({
         url: url,
         filePath: filePath,
@@ -124,6 +125,9 @@ function doUpload(filePath, success, fail, options, progress, cancelTask) {
             if (fail) {
                 fail(error);
             }
+        },
+        complete: function(err) {
+            complete && complete(err);
         }
     })
 
