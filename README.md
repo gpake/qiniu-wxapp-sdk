@@ -150,6 +150,12 @@ Page({
             console.log('上传进度', res.progress)
             console.log('已经上传的数据长度', res.totalBytesSent)
             console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+        }, () => {
+          // 取消上传
+        }, () => {
+          // `before` 上传前执行的操作
+        }, (err) => {
+          // `complete` 上传接受后执行的操作(无论成功还是失败都执行)
         });
       }
     })
@@ -158,6 +164,59 @@ Page({
 
 // domain 为七牛空间（bucket)对应的域名，选择某个空间后，可通过"空间设置->基本设置->域名设置"查看获取
 // key：通过微信小程序 Api 获得的图片文件的 URL 已经是处理过的临时地址，可以作为唯一文件 key 来使用。
+```
+
+3. TypeScript 支持
+```TypeScript
+// 请先参照微信小程序开发文档配置 TypeScript 支持
+import { upload } from 'qiniuUploader.ts';
+
+Page({
+  didPressChooseImage: function() {
+    wx.chooseImage({
+      count: 1,
+      success: function (res) {
+        var filePath = res.tempFilePaths[0];
+        upload({
+          filePath: filePath,
+          options: {
+            key: '',          // 可选
+            region: '',       // 可选(默认为'ECN')
+            domain: '',
+            uptoken: '',      // 以下三选一
+            uptokenURL: '',
+            uptokenFunc: () => {
+              return '[yourTokenString]';
+            },
+            shouldUseQiniuFileName: true // 默认false
+          },
+          before: () => {
+            // 上传前
+            console.log('before upload');
+          },
+          success: (res) => {
+            that.setData({
+              'imageURL': res.imageURL,
+            });
+            console.log('file url is: ' + res.fileUrl);
+          },
+          fail: (err) => {
+            console.log('error:' + err);
+          },
+          progress: (res) => {
+            console.log('上传进度', res.progress)
+            console.log('已经上传的数据长度', res.totalBytesSent)
+            console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+          },
+          complete: (err) => {
+            // 上传结束
+            console.log('upload complete');
+          }
+        });
+      }
+    });
+  }
+})
 ```
 
 <a id="demo"></a>
