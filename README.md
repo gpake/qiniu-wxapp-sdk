@@ -63,7 +63,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 根据你创建的七牛`存储空间`，把对应的 https 上传地址添加到小程序的访问白名单中，方法如下：
 
 >1. 登录 [微信公众平台](https://mp.weixin.qq.com/)，前往 **设置 - 开发设置**，点击 **服务器配置** 下的「**修改**」链接。
->2. 修改 uploadFile 域名(比如华北 https 上传地址为：`https://up.qiniup.com`，地址不清楚写什么请参见[https地址附录](#region))
+>2. 修改 uploadFile 域名(比如华东 https 上传地址为：`https://up.qiniup.com`，地址不清楚写什么请参见[https地址附录](#region))
 >3. 如果需要下载文件，则还需要一同设置 **downloadFile 域名**，为你的 bucket 下载地址
 >4. 保存即可
 
