@@ -85,7 +85,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 | 北美     | NA       | https://up-na0.qiniup.com |
 | 新加坡   | ASG      | https://up-as0.qiniup.com |
 
-**注意！！**目前微信限制每月只能修改三次域名白名单。
+**注意!!** 目前微信限制每月只能修改三次域名白名单。
 
 <a id="usage"></a>
 ### 安装
