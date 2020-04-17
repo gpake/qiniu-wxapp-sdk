@@ -1,14 +1,53 @@
 <!--index.wxml-->
 <view class="main">
-  <button bindtap='didPressChooesImage'>上传图片</button>
-  <view class="image-container">
-    <image class="image" src="{{imageObject.imageURL}}" mode="aspectFit"></image>
-  </view>
+	<!-- 上传图片 -->
+	<view class="title">图片上传</view>
+	<view class="image-container">
+		<image class="image" src="{{imageObject.fileUrl}}" mode="aspectFit"></image>
+	</view>
+	<!-- 图片参数 -->
+	<view class="data">
+		<!-- hash和key是上传成功后，七牛云返回的对象自带的属性，fileUrl是本sdk使用initQiniu()中的属性domain拼接出来的 -->
+		hash: <text>{{imageObject.hash}}\n\n</text>
+		key: <text>{{imageObject.key}}\n\n</text>
+		fileUrl: <text>{{imageObject.fileUrl}}</text>
+	</view>
+	<view class="button-container">
+		<button bindtap='didPressChooesImage'>上传图片</button>
+		<button bindtap='didCancelTask'>中断上传</button>
+	</view>
 
-  <view class="data">
-    hash: <text>{{imageObject.hash}}\n\n</text>
-    key: <text>{{imageObject.key}}\n\n</text>
-    imageURL: <text>{{imageObject.imageURL}}</text>
-  </view>
-  <button bindtap='didCancelTask'>取消任务</button>
+	<!-- 分隔符 -->
+	<view class="delimeter"></view>
+
+	<!-- 视频上传 -->
+	<view class="title">视频上传</view>
+	<!-- 文件参数 -->
+	<view class="data">
+		<!-- hash和key是上传成功后，七牛云返回的对象自带的属性，fileUrl是本sdk使用initQiniu()中的属性domain拼接出来的 -->
+		hash: <text>{{videoFileObject.hash}}\n\n</text>
+		key: <text>{{videoFileObject.key}}\n\n</text>
+		fileUrl: <text>{{videoFileObject.fileUrl}}</text>
+	</view>
+	<view class="button-container">
+		<button bindtap="didPressChooesMessageFile">上传视频</button>
+		<button bindtap='didCancelTask'>中断上传</button>
+	</view>
+
+	<!-- 分隔符 -->
+	<view class="delimeter"></view>
+
+	<!-- 上传文件 -->
+	<view class="title">文件上传</view>
+	<!-- 文件参数 -->
+	<view class="data">
+		<!-- hash和key是上传成功后，七牛云返回的对象自带的属性，fileUrl是本sdk使用initQiniu()中的属性domain拼接出来的 -->
+		hash: <text>{{messageFileObject.hash}}\n\n</text>
+		key: <text>{{messageFileObject.key}}\n\n</text>
+		fileUrl: <text>{{messageFileObject.fileUrl}}</text>
+	</view>
+	<view class="button-container">
+		<button bindtap="didPressChooesMessageFile">上传文件</button>
+		<button bindtap='didCancelTask'>中断上传</button>
+	</view>
 </view>
