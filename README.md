@@ -15,8 +15,10 @@ Qiniu-wxapp-SDK
 
 ### 最近一次修改：
 
-* 文件上传功能，增加了对视频、PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式的支持。js 版本和ts 版本均已更新兼容。
-* 补充了更详细的注释，demo 页面美化，增加了视频上传与文件上传的UI。js 版本和ts 版本均已更新兼容。
+* 增加了文件上传（从客户端会话）功能，支持从客户端会话中选择图片、视频、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）进行上传。
+* demo 页面美化，增加了文件上传（从客户端会话）的UI。
+* 补充了更详细的注释，并同步对README.md进行了更新。
+* js 版本更新并兼容。ts 版本已兼容，但未更新优化，ts 版本的更新优化将在日后进行。
 
 ### 概述
 
@@ -105,7 +107,7 @@ qiniuUploader.js 和 qiniuUploader.ts 文件在本项目中的sdk 目录。
 
 #### 上传功能
 
-建议参照demo 的用法，从demo的index页面 上传UI按钮绑定的事件开始看，注释写的很详细。
+建议参照demo 的用法，从demo的 ``index.wxml`` 页面 上传UI按钮绑定的事件开始看，注释写的很详细。
 
 1. 在需要使用的页面引用js 文件：
 
@@ -121,175 +123,71 @@ const qiniuUploader = require("../../utils/qiniuUploader");
 
 // 初始化七牛云相关配置
 function initQiniu() {
-  var options = {
-    // bucket所在区域，这里是华北区。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
-    region: 'NCN',
+    var options = {
+        // bucket所在区域，这里是华北区。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+        region: 'NCN',
 
-    // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
-    // 由其他程序生成七牛 uptoken
-    uptoken: '',
-    // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
-    uptokenURL: 'https://[yourserver.com]/api/uptoken',
-    // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
-    uptokenFunc: function () { },
+        // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
+        // 由其他程序生成七牛云uptoken，然后直接写入uptoken
+        uptoken: '',
+        // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+        uptokenURL: 'https://[yourserver.com]/api/uptoken',
+        // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
+        uptokenFunc: function () { },
 
-    // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileUrl 字段。否则需要自己拼接
-    domain: 'http://[yourBucketId].bkt.clouddn.com',
-    // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-    shouldUseQiniuFileName: true
-  };
-  // 将七牛云相关配置初始化进本sdk
-  qiniuUploader.init(options);
+        // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
+        domain: 'http://[yourBucketId].bkt.clouddn.com',
+        // 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
+        shouldUseQiniuFileName: true
+    };
+    // 将七牛云相关配置初始化进本sdk
+    qiniuUploader.init(options);
 }
 
 //获取应用实例
 var app = getApp()
 Page({
-  data: {
-    // 上传图片完成后，此属性被赋值
-    imageObject: {},
-    // 上传视频完成后，此属性被赋值
-    videoObject: {},
-    // 上传文件完成后，此属性被赋值
-    messageFileObject: {},
-    // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
-    cancelTask: function () { }
-  },
-  //事件处理函数
-  onLoad: function () {
-    console.log('onLoad')
-    var that = this;
-  },
-  // 图片上传方法
-  didPressChooesImage: function () {
-    var that = this;
-    didPressChooesImage(that);
-  },
-  // 文件上传方法，支持PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式
-  didPressChooesMessageFile: function () {
-    var that = this;
-    didPressChooesMessageFile(that);
-  },
-  // 中断上传方法
-  didCancelTask: function () {
-    this.data.cancelTask();
-  }
+    data: {
+        // 图片上传（从相册）返回对象。上传完成后，此属性被赋值
+        imageObject: {},
+        // 文件上传（从客户端会话）返回对象。上传完成后，此属性被赋值
+        messageFileObject: {},
+        // 图片上传（从相册）进度对象。开始上传后，此属性被赋值
+        imageProgress: {},
+        // 文件上传（从客户端会话）进度对象。开始上传后，此属性被赋值
+        messageFileProgress: {},
+        // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
+        cancelTask: function () { }
+    },
+    //事件处理函数
+    onLoad: function () {
+        console.log('onLoad');
+        var that = this;
+    },
+    // 图片上传（从相册）方法
+    didPressChooesImage: function () {
+        var that = this;
+        didPressChooesImage(that);
+    },
+    // 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
+    didPressChooesMessageFile: function () {
+        var that = this;
+        didPressChooesMessageFile(that);
+    },
+    // 中断上传方法
+    didCancelTask: function () {
+        this.data.cancelTask();
+    }
 });
 
-// 图片上传方法
+// 图片上传（从相册）方法
 function didPressChooesImage(that) {
-  // 初始化七牛云配置
-  initQiniu();
-  // 微信 API 选择图片
-  wx.chooseImage({
-    count: 1,
-    success: function (res) {
-      var filePath = res.tempFilePaths[0];
-      // 向七牛云上传
-      qiniuUploader.upload(filePath, (res) => {
-        that.setData({
-          'imageObject': res
-        });
-        console.log('file url is: ' + res.fileUrl)
-      }, (error) => {
-        console.error('error: ' + JSON.stringify(error));
-      },
-      // 此项为qiniuUploader.upload的第四个参数options。若想在单个方法中变更七牛云相关配置，可以使用上述参数。如果不需要在单个方法中变更七牛云相关配置，则可使用 null 作为参数占位符。推荐填写initQiniu()中的七牛云相关参数，然后此处使用null做占位符。
-      // {
-      //   region: 'NCN', // 华北区
-      //   uptokenURL: 'https://[yourserver.com]/api/uptoken',
-      //   domain: 'http://[yourBucketId].bkt.clouddn.com',
-      //   shouldUseQiniuFileName: false,
-      //   key: 'testKeyNameLSAKDKASJDHKAS',
-      //   uptokenURL: 'myServer.com/api/uptoken'
-      // },
-      null,
-      (progress) => {
-        console.log('上传进度', progress.progress)
-        console.log('已经上传的数据长度', progress.totalBytesSent)
-        console.log('预期需要上传的数据总长度', progress.totalBytesExpectedToSend)
-      }, cancelTask => that.setData({ cancelTask })
-      );
-    }
-  })
+    // 详情请见demo部分 index.js
 }
 
-// 视频上传方法
-function didPressChooesVideo() {
-  // 初始化七牛云相关参数
-  initQiniu();
-  // 微信 API 选择文件
-  wx.chooseMessageFile({
-    count: 1,
-    type: 'video',
-    success: function (res) {
-      var filePath = res.tempFiles[0].path;
-      // 向七牛云上传
-      qiniuUploader.upload(filePath, (res) => {
-        that.setData({
-          'videoObject': res
-        });
-        console.log('file url is: ' + res.fileUrl)
-      }, (error) => {
-        console.error('error: ' + JSON.stringify(error));
-      },
-      // 此项为qiniuUploader.upload的第四个参数options。若想在单个方法中变更七牛云相关配置，可以使用上述参数。如果不需要在单个方法中变更七牛云相关配置，则可使用 null 作为参数占位符。推荐填写initQiniu()中的七牛云相关参数，然后此处使用null做占位符。
-      // {
-      //   region: 'NCN', // 华北区
-      //   uptokenURL: 'https://[yourserver.com]/api/uptoken',
-      //   domain: 'http://[yourBucketId].bkt.clouddn.com',
-      //   shouldUseQiniuFileName: false,
-      //   key: 'testKeyNameLSAKDKASJDHKAS',
-      //   uptokenURL: 'myServer.com/api/uptoken'
-      // },
-      null,
-      (progress) => {
-        console.log('上传进度', progress.progress)
-        console.log('已经上传的数据长度', progress.totalBytesSent)
-        console.log('预期需要上传的数据总长度', progress.totalBytesExpectedToSend)
-      }, cancelTask => that.setData({ cancelTask })
-      );
-    }
-  })
-}
-
-// 文件上传方法，支持PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式
+// 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
 function didPressChooesMessageFile(that) {
-  // 初始化七牛云相关参数
-  initQiniu();
-  // 微信 API 选择文件
-  wx.chooseMessageFile({
-    count: 1,
-    type: 'file',
-    success: function (res) {
-      var filePath = res.tempFiles[0].path;
-      // 向七牛云上传
-      qiniuUploader.upload(filePath, (res) => {
-        that.setData({
-          'messageFileObject': res
-        });
-        console.log('file url is: ' + res.fileUrl)
-      }, (error) => {
-        console.error('error: ' + JSON.stringify(error));
-      },
-      // 此项为qiniuUploader.upload的第四个参数options。若想在单个方法中变更七牛云相关配置，可以使用上述参数。如果不需要在单个方法中变更七牛云相关配置，则可使用 null 作为参数占位符。推荐填写initQiniu()中的七牛云相关参数，然后此处使用null做占位符。
-      // {
-      //   region: 'NCN', // 华北区
-      //   uptokenURL: 'https://[yourserver.com]/api/uptoken',
-      //   domain: 'http://[yourBucketId].bkt.clouddn.com',
-      //   shouldUseQiniuFileName: false,
-      //   key: 'testKeyNameLSAKDKASJDHKAS',
-      //   uptokenURL: 'myServer.com/api/uptoken'
-      // },
-      null,
-      (progress) => {
-        console.log('上传进度', progress.progress)
-        console.log('已经上传的数据长度', progress.totalBytesSent)
-        console.log('预期需要上传的数据总长度', progress.totalBytesExpectedToSend)
-      }, cancelTask => that.setData({ cancelTask })
-      );
-    }
-  })
+    // 详情请见demo部分 index.js
 }
 ```
 
@@ -362,28 +260,28 @@ var options = {
   region: 'NCN',
 
   // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
-  // 由其他程序生成七牛 uptoken
+  // 由其他程序生成七牛云uptoken，然后直接写入uptoken
   uptoken: '',
   // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
   uptokenURL: 'https://[yourserver.com]/api/uptoken',
   // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
   uptokenFunc: function () { },
 
-  // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileUrl 字段。否则需要自己拼接
+  // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
   domain: 'http://[yourBucketId].bkt.clouddn.com',
   // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
   shouldUseQiniuFileName: true
 };
-// 将七牛云相关配置初始化进本sdk
-qiniuUploader.init(options);
 
-// init(options); 将七牛云相关配置初始化进本sdk
-// 如果使用了 init 方法，则 upload 函数的 options 可以省略。如果没有 init，upload 中也没有 options 则会报错。
-// 这里的 options 和 init 中的传入参数一样，只会修改传入的参数
-// 上传之前会检查 uptoken 是否存在
-// options 参数可以比 init 的时候多出一个参数：[key] 用于指定本次上传文件的名称
-qiniuUploader.upload(filePath, [succeedCallback, [failedCallback, [options, [progress, [cancelTask]]]]]);
-// 其中 filePath，是通过微信小程序官方 API：wx.chooseImage在 success callback得到 var filePath = res.tempFilePaths[0]; 或 wx.chooseMessageFile 在 success callback得到 var filePath = res.tempFiles[0].path;
+// 图片上传（从相册）方法
+function didPressChooesImage(that) {
+    // 详情请见demo部分 index.js
+}
+
+// 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
+function didPressChooesMessageFile(that) {
+    // 详情请见demo部分 index.js
+}
 ```
 
 <a id="note"></a>
@@ -401,24 +299,24 @@ qiniuUploader.upload(filePath, [succeedCallback, [failedCallback, [options, [pro
      region: 'NCN',
    
      // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
-     // 由其他程序生成七牛 uptoken
+     // 由其他程序生成七牛云uptoken，然后直接写入uptoken
      uptoken: '',
      // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
      uptokenURL: 'https://[yourserver.com]/api/uptoken',
      // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
      uptokenFunc: function () { },
    
-     // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileUrl 字段。否则需要自己拼接
+     // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
      domain: 'http://[yourBucketId].bkt.clouddn.com',
      // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
      shouldUseQiniuFileName: true
    };
-   // 将七牛云相关配置初始化进本sdk
-   qiniuUploader.init(options);
    ```
    
 3. 如果您想了解更多七牛的上传策略，建议您仔细阅读 [七牛官方文档-上传](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#up)。
    七牛的上传策略是在后端服务指定的。
+   
+   例如：[七牛云 java sdk](https://developer.qiniu.com/kodo/sdk/1239/java) 中提到了[魔法变量](https://developer.qiniu.com/kodo/manual/1235/vars#magicvar) 可以指定上传文件后，返回对象中包含字段：文件的大小  ``fsize`` , 文件类型  ``mimeType`` 等。
    
 4. 如果您想了解更多七牛的图片处理，建议您仔细阅读 [七牛官方文档-图片处理](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#image)
 
@@ -429,9 +327,9 @@ qiniuUploader.upload(filePath, [succeedCallback, [failedCallback, [options, [pro
 
 1. **关于上传文件名**
 
-   如果在上传的时候没有指定文件 key，会使用 ``wx.chooesImage`` 得到的tmp filePath作为文件的 key。例如：`tmp_xxxxxxx.jpg`。
+   如果在上传的时候没有指定文件 key，会使用由 qiniu 服务器分配的 key （全局去重）。例如：`` Fh6qfpY...`` （建议的方式）
 
-   或者，可以让文件的 key 由七牛云服务器分配 (全局去重)，例如：`` Fh6qfpY...`` （建议的方式）
+   或者，可以使用 ``wx.chooesImage`` 得到的tmp filePath作为文件的 key。例如：`tmp_xxxxxxx.jpg`。
 
    推荐使用七牛云服务器分配的key (全局去重)，微信自动生成的filename杂乱且长。
 
@@ -445,9 +343,9 @@ qiniuUploader.upload(filePath, [succeedCallback, [failedCallback, [options, [pro
 
 3. **限制上传文件的类型：**
 
-   支持图片文件、视频文件、PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式。
+   支持图片文件、视频文件、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）。
 
-   demo页面有图片上传、视频上传、文件上传的UI演示。
+   demo部分的 ``index.wxml`` 页面有图片上传（从相册）、文件上传（从客户端会话）的UI演示。
 
 <a id="contribute-code"></a>
 
