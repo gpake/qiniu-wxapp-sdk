@@ -15,9 +15,12 @@ Qiniu-wxapp-SDK
 
 ### 最近一次修改：
 
-* 更换了七牛的新域名 `*.qiniup.com`
-* 更正了 sdk 内部 fileUrl 的命名
-* `res` 添加新字段 `fileUrl`，内容和 `imageUrl` 一样，但是语义更明确，且不仅限于图片了。
+* 增加了文件上传（从客户端会话）功能，支持从客户端会话中选择图片、视频、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）进行上传。
+* demo 页面美化，增加了文件上传（从客户端会话）的UI。
+* 增加了对 "通过fileURL下载文件时，自定义下载名" 的说明与样例。
+* 增加了demo中获取原文件名的功能演示。
+* 补充了更详细的注释，并同步对README.md进行了更新。
+* 本次sdk升级兼容上一版本。js 版本更新并兼容。ts 版本已兼容，但未更新优化，ts 版本的更新优化将在日后进行。
 
 ### 概述
 
@@ -36,7 +39,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 ### 功能简介
 
-- 上传
+- 上传文件，支持图片文件、视频文件、PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式。
 
 其他功能在开发中，敬请期待。
 
@@ -75,7 +78,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 
 <a id="region"></a>
 
-存储区域对应 HTTPS 地址，参考[官方文档](https://support.qiniu.com/hc/kb/article/210702)
+七牛云文件上传接口，文件向匹配的接口中传输，存储区域对应 HTTPS 地址，参考[官方文档](https://support.qiniu.com/hc/kb/article/210702)
 
 | 存储区域 | 区域代码 | HTTPS 地址             |
 | -------- | -------- | ---------------------- |
@@ -100,11 +103,13 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 git clone https://github.com/gpake/qiniu-wxapp-sdk.git
 ```
 
-qiniuUploader.js 文件在 sdk 目录。
+qiniuUploader.js 和 qiniuUploader.ts 文件在本项目中的sdk 目录。
 
 ### 使用
 
 #### 上传功能
+
+建议参照demo 的用法，从demo的 ``index.wxml`` 页面 上传UI按钮绑定的事件开始看，注释写的很详细。
 
 1. 在需要使用的页面引用js 文件：
 
@@ -112,58 +117,86 @@ qiniuUploader.js 文件在 sdk 目录。
 const qiniuUploader = require("../../../utils/qiniuUploader");
 ```
 
-2. 在需要使用上传功能的页面，开心的使用：
+2. 在需要使用上传功能的页面，开心地使用：
 
 ```JavaScript
+const qiniuUploader = require("../../utils/qiniuUploader");
+// index.js
+
+// 初始化七牛云相关配置
+function initQiniu() {
+    var options = {
+        // bucket所在区域，这里是华北区。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+        region: 'NCN',
+
+        // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
+        // 由其他程序生成七牛云uptoken，然后直接写入uptoken
+        uptoken: '',
+        // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+        uptokenURL: 'https://[yourserver.com]/api/uptoken',
+        // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
+        uptokenFunc: function () { 
+        		// do something
+    				return qiniuUploadToken;
+        },
+
+        // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
+        domain: 'http://[yourBucketId].bkt.clouddn.com',
+        // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+        // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+        // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+        // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+        shouldUseQiniuFileName: false
+    };
+    // 将七牛云相关配置初始化进本sdk
+    qiniuUploader.init(options);
+}
+
+//获取应用实例
+var app = getApp()
 Page({
-  didPressChooseImage: function() {
-    var that = this;
-    // 选择图片
-    wx.chooseImage({
-      count: 1,
-      success: function (res) {
-        var filePath = res.tempFilePaths[0];
-        // 交给七牛上传
-        qiniuUploader.upload(filePath, (res) => {
-          // 每个文件上传成功后,处理相关的事情
-          // 其中 info 是文件上传成功后，服务端返回的json，形式如
-          // {
-          //    "hash": "Fh8xVqod2MQ1mocfI4S4KpRL6D98",
-          //    "key": "gogopher.jpg"
-          //  }
-          // 参考http://developer.qiniu.com/docs/v6/api/overview/up/response/simple-response.html
-          that.setData({
-            'imageURL': res.imageURL,
-          });
-          console.log('file url is: ' + res.fileUrl);
-        }, (error) => {
-		  console.log('error: ' + error);
-        }, {
-          region: 'ECN',
-          domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
-          key: 'customFileName.jpg', // [非必须]自定义文件 key。如果不设置，默认为使用微信小程序 API 的临时文件名
-          // 以下方法三选一即可，优先级为：uptoken > uptokenURL > uptokenFunc
-          uptoken: '[yourTokenString]', // 由其他程序生成七牛 uptoken
-          uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "[yourTokenString]"}
-          uptokenFunc: function() {return '[yourTokenString]';}
-        }, (res) => {
-            console.log('上传进度', res.progress)
-            console.log('已经上传的数据长度', res.totalBytesSent)
-            console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
-        }, () => {
-          // 取消上传
-        }, () => {
-          // `before` 上传前执行的操作
-        }, (err) => {
-          // `complete` 上传接受后执行的操作(无论成功还是失败都执行)
-        });
-      }
-    })
-  }
+    data: {
+        // 图片上传（从相册）返回对象。上传完成后，此属性被赋值
+        imageObject: {},
+        // 文件上传（从客户端会话）返回对象。上传完成后，此属性被赋值
+        messageFileObject: {},
+        // 图片上传（从相册）进度对象。开始上传后，此属性被赋值
+        imageProgress: {},
+        // 文件上传（从客户端会话）进度对象。开始上传后，此属性被赋值
+        messageFileProgress: {},
+        // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
+        cancelTask: function () { }
+    },
+    //事件处理函数
+    onLoad: function () {
+        console.log('onLoad');
+        var that = this;
+    },
+    // 图片上传（从相册）方法
+    didPressChooesImage: function () {
+        var that = this;
+        didPressChooesImage(that);
+    },
+    // 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
+    didPressChooesMessageFile: function () {
+        var that = this;
+        didPressChooesMessageFile(that);
+    },
+    // 中断上传方法
+    didCancelTask: function () {
+        this.data.cancelTask();
+    }
 });
 
-// domain 为七牛空间（bucket)对应的域名，选择某个空间后，可通过"空间设置->基本设置->域名设置"查看获取
-// key：通过微信小程序 Api 获得的图片文件的 URL 已经是处理过的临时地址，可以作为唯一文件 key 来使用。
+// 图片上传（从相册）方法
+function didPressChooesImage(that) {
+    // 详情请见demo部分 index.js
+}
+
+// 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
+function didPressChooesMessageFile(that) {
+    // 详情请见demo部分 index.js
+}
 ```
 
 3. TypeScript 支持
@@ -188,7 +221,7 @@ Page({
             uptokenFunc: () => {
               return '[yourTokenString]';
             },
-            shouldUseQiniuFileName: true // 默认false
+            shouldUseQiniuFileName: true // 默认true
           },
           before: () => {
             // 上传前
@@ -196,8 +229,8 @@ Page({
           },
           success: (res) => {
             that.setData({
-              'imageURL': res.imageURL,
-            });
+          		'imageObject': res
+        		});
             console.log('file url is: ' + res.fileUrl);
           },
           fail: (err) => {
@@ -231,30 +264,38 @@ Page({
 
 ```javascript
 var options = {
-  region: 'East', // 是你注册bucket的时候选择的区域的代码
-  // ECN, SCN, NCN, NA, ASG，分别对应七牛的：华东，华南，华北，北美，新加坡 5 个区域
-  // 详情可以参见「说明」部分的第一条
-  
-  domain: 'bzkdlkaf.bkt.clouddn.com', // // bucket 域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 ImageURL 字段。否则需要自己拼接
+  // bucket所在区域，这里是华北区。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+  region: 'NCN',
 
-  // 以下方法三选一即可，优先级为：uptoken > uptokenURL > uptokenFunc
-  uptoken: 'xxxxxxxxUpToken', // 由其他程序生成七牛 uptoken
-  uptokenURL: 'UpTokenURL.com/uptoken', // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
-  uptokenFunc: function() {
-    // do something to make a uptoken
-    return 'zxxxzaqdfUpToken';
+  // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
+  // 由其他程序生成七牛云uptoken，然后直接写入uptoken
+  uptoken: '',
+  // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+  uptokenURL: 'https://[yourserver.com]/api/uptoken',
+  // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
+  uptokenFunc: function () {
+    // do something
+    return qiniuUploadToken;
   },
-  shouldUseQiniuFileName: false // 如果是 true，则文件 key 由 qiniu 服务器分配 (全局去重)。默认是 false: 即使用微信产生的 filename
+
+  // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
+  domain: 'http://[yourBucketId].bkt.clouddn.com',
+  // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+  // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+  // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+  // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+  shouldUseQiniuFileName: false
 };
-qiniuUploader.init(options);
 
+// 图片上传（从相册）方法
+function didPressChooesImage(that) {
+    // 详情请见demo部分 index.js
+}
 
-// 如果使用了 init 方法，则 upload 函数的 options 可以省略。如果没有 init，upload 中也没有 options 则会报错。
-// 这里的 options 和 init 中的传入参数一样，只会修改传入的参数
-// 上传之前会检查 uptoken 是否存在
-// options 参数可以比 init 的时候多出一个参数：[key] 用于指定本次上传文件的名称
-qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options, [progress]]]]);
-// 其中 wxappFilePath，是通过微信小程序官方 API：wx.chooseImage，在 success callback得到 var filePath = res.tempFilePaths[0];
+// 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
+function didPressChooesMessageFile(that) {
+    // 详情请见demo部分 index.js
+}
 ```
 
 <a id="note"></a>
@@ -264,33 +305,74 @@ qiniuUploader.upload(wxappFilePath, [succeedCallback, [failedCallback, [options,
    1. 当前一共有 5 个区域可以选择：[华东，华北，华南，北美，新加坡]，对应着不同的服务器地址
    2. 如果你不知道在哪里看当前空间的存储区域，可以登录七牛后台，在[这个页面的右下角](https://portal.qiniu.com/bucket)查看
    3. **对于存储区域和 options 中 region 代码可以参考[这个表格](#region)**
-2. SDK 依赖 uptoken，可以直接设置 `uptoken`  、通过提供 Ajax 请求地址 `uptokenURL` 或者通过提供一个能够返回 uptoken 的函数 `uptoken_func` 实现。
-   - 如果没用设置过uptoken, uptoken_url 两个参数中必须有一个被设置
-   - 如果提供了多个，其优先级为：uptoken > uptokenURL > uptokenFunc
-   - 其中 uptoken 是直接提供上传凭证，uptoken_url 是提供了获取上传凭证的地址
-   - uptoken : '<Your upload token>', // uptoken 是上传凭证，由其他程序生成
-   - uptoken_url: '/uptoken',                // Ajax 请求 uptoken 的 Url，**强烈建议设置**（服务端提供），取值的路径为：`res.data.uptoken`
+   
+2. SDK 依赖 uptoken，可以直接设置 `uptoken`  、通过提供 Ajax 请求地址 `uptokenURL` 或者通过提供一个能够返回 uptoken 的函数 `uptokenFunc` 实现。
+   ```javascript
+   var options = {
+     // bucket所在区域，这里是华北区。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+     region: 'NCN',
+   
+     // 获取uptoken方法三选一即可，执行优先级为：uptoken > uptokenURL > uptokenFunc。三选一，剩下两个置空。推荐使用uptokenURL，详情请见 README.md
+     // 由其他程序生成七牛云uptoken，然后直接写入uptoken
+     uptoken: '',
+     // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
+     uptokenURL: 'https://[yourserver.com]/api/uptoken',
+     // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
+     uptokenFunc: function () { 
+     	// do something
+       return qiniuUploadToken;
+     },
+   
+     // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
+     domain: 'http://[yourBucketId].bkt.clouddn.com',
+     // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+     // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+     // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+     // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+     shouldUseQiniuFileName: false
+   };
+   ```
+   
 3. 如果您想了解更多七牛的上传策略，建议您仔细阅读 [七牛官方文档-上传](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#up)。
    七牛的上传策略是在后端服务指定的。
+   
+   例如：[七牛云 java sdk](https://developer.qiniu.com/kodo/sdk/1239/java) 中提到了[魔法变量](https://developer.qiniu.com/kodo/manual/1235/vars#magicvar) 可以指定上传文件后，返回对象中包含字段：文件的大小  ``fsize`` , 文件类型  ``mimeType`` 等。
+   
 4. 如果您想了解更多七牛的图片处理，建议您仔细阅读 [七牛官方文档-图片处理](http://developer.qiniu.com/code/v6/api/kodo-api/index.html#image)
+
 5. SDK 示例生成 uptotken 时，指定的 `Bucket Name` 为公开空间，所以可以公开访问上传成功后的资源。若您生成 uptoken 时，指定的 `Bucket Name` 为私有空间，那您还需要在服务端进行额外的处理才能访问您上传的资源。具体参见[下载凭证](http://developer.qiniu.com/article/developer/security/download-token.html)。SDK 数据处理部分功能不适用于私有空间。
 
 <a id="faq"></a>
 ### 常见问题
 
-1. **关于上传文件名**
+1. **关于上传key**
 
-   如果在上传的时候没有指定文件 key，会使用 wx.chooesImage 得到的tmp filePath作为文件的 key。例如：`tmp_xxxxxxx.jpg`
+   如果在上传的时候没有指定文件 key，会使用 ``wx.chooesImage`` 得到的 tmp filePath 作为文件的 key。例如：`tmp_xxxxxxx.jpg`。
+
+   或者，可以使用由 qiniu 服务器分配的 key （全局去重）。例如：`` Fh6qfpY...`` （建议的方式）
+
+   微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+
+   详情请见demo的 ``index.js`` 中的  ``shouldUseQiniuFileName`` 属性，sdk中的 ``qiniuShouldUseQiniuFileName`` 属性。
 
 2. **设置取消上传、暂停上传：**
 
-   微信小程序上传 API 暂时无法取消、暂停上传操作
+   请见demo部分，``index.js``中``data.cancelTask``。sdk的``qiniuUploader.js``中的``cancelTask``方法。
+
+   此外，demo页面有中断上传的UI演示。
 
 3. **限制上传文件的类型：**
 
-   使用微信小程序 API 只能选到图片文件。
+   支持图片文件、视频文件、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）。
 
-   如果是小程序内产生的文件，那么正常使用即可。
+   demo部分的 ``index.wxml`` 页面有图片上传（从相册）、文件上传（从客户端会话）的UI演示。
+
+4. **通过fileURL下载文件时，自定义下载名**
+
+   请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）
+   例如：fileUrl为 ``http://xxx.com/keyyyyy``，直接在浏览器中打开此链接下载的文件，文件名为“keyyyyy”。
+
+   想自定义下载得到的文件名为“myName”，可以通过：``http://xxx.com/keyyyyy?attname=myName`` 来下载，即 "fileUrl" + "?attname=" + "自定义文件名" 的方式。
 
 <a id="contribute-code"></a>
 
