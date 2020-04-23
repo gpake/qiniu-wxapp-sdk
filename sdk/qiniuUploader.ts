@@ -137,6 +137,8 @@ function doUpload({
                 //do something
                 let fileURL = config.qiniuImageURLPrefix + '/' + dataObject.key;
                 dataObject.fileURL = fileURL;
+                // imageURL字段和fileURL字段重复，但本sdk不做删除，因为在最初版本使用的是imageURL。直接删除可能导致原有用户升级至新版sdk后出现异常。
+                dataObject.imageURL = fileURL;
                 console.log(dataObject);
                 success && success(dataObject);
             } catch (e) {

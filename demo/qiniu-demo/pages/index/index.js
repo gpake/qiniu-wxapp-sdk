@@ -17,8 +17,11 @@ function initQiniu() {
 
         // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
         domain: 'http://[yourBucketId].bkt.clouddn.com',
-        // 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-        shouldUseQiniuFileName: true
+        // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+        // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+        // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+        // 通过fileURL下载文件时，自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+        shouldUseQiniuFileName: false
     };
     // 将七牛云相关配置初始化进本sdk
     qiniuUploader.init(options);
@@ -81,12 +84,14 @@ function didPressChooesImage(that) {
                 that.setData({
                     'imageObject': res
                 });
-                console.log('wx.chooseImage 目前微信官方尚未开放获取原图片名功能(2020.4.22)');
+                console.log('提示: wx.chooseImage 目前微信官方尚未开放获取原图片名功能(2020.4.22)');
                 console.log('file url is: ' + res.fileURL);
             }, (error) => {
                 console.error('error: ' + JSON.stringify(error));
             },
             // 此项为qiniuUploader.upload的第四个参数options。若想在单个方法中变更七牛云相关配置，可以使用上述参数。如果不需要在单个方法中变更七牛云相关配置，则可使用 null 作为参数占位符。推荐填写initQiniu()中的七牛云相关参数，然后此处使用null做占位符。
+            // 若想自定义上传key，请把自定义key写入此处options的key值。如果在使用自定义key后，其它七牛云配置参数想维持全局配置，请把此处options除key以外的属性值置空。
+            // 启用options参数请记得删除null占位符
             // {
             //   region: 'NCN', // 华北区
             //   uptokenURL: 'https://[yourserver.com]/api/uptoken',
@@ -123,7 +128,7 @@ function didPressChooesMessageFile(that) {
         // 最多可以选择的文件个数。目前本sdk只支持单文件上传，若选择多文件，只会上传第一个文件
         count: 1,
         // type: 所选的文件的类型
-        // type的值: [all : 从所有文件选择], [video : 只能选择视频文件], [image : 只能选择图片文件], [file : 只能选择除了图片和视频之外的其它的文件]
+        // type的值: {all: 从所有文件选择}, {video: 只能选择视频文件}, {image: 只能选择图片文件}, {file: 只能选择除了图片和视频之外的其它的文件}
         type: 'all',
         success: function (res) {
             var filePath = res.tempFiles[0].path;
@@ -140,6 +145,8 @@ function didPressChooesMessageFile(that) {
                 console.error('error: ' + JSON.stringify(error));
             },
             // 此项为qiniuUploader.upload的第四个参数options。若想在单个方法中变更七牛云相关配置，可以使用上述参数。如果不需要在单个方法中变更七牛云相关配置，则可使用 null 作为参数占位符。推荐填写initQiniu()中的七牛云相关参数，然后此处使用null做占位符。
+            // 若想自定义上传key，请把自定义key写入此处options的key值。如果在使用自定义key后，其它七牛云配置参数想维持全局配置，请把此处options除key以外的属性值置空。
+            // 启用options参数请记得删除null占位符
             // {
             //   region: 'NCN', // 华北区
             //   uptokenURL: 'https://[yourserver.com]/api/uptoken',

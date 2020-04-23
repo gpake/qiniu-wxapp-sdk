@@ -14,8 +14,11 @@
         // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
         qiniuUploadTokenFunction: function () { },
 
-        // 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-        qiniuShouldUseQiniuFileName: true
+        // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+        // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+        // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+        // 通过fileURL下载文件时，自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+        qiniuShouldUseQiniuFileName: false
     }
 
     // init(options) 将七牛云相关配置初始化进本sdk
@@ -81,7 +84,7 @@
         }
         var url = uploadURLFromRegionCode(config.qiniuRegion);
         var fileName = filePath.split('//')[1];
-        // 如果options非空，则使用options中的key作为fileName
+        // 自定义上传key（即自定义上传文件名）。通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义文件名称。如果options非空，则使用options中的key作为fileName
         if (options && options.key) {
             fileName = options.key;
         }
@@ -108,6 +111,8 @@
                     // 拼接fileURL
                     var fileURL = config.qiniuBucketURLPrefix + '/' + dataObject.key;
                     dataObject.fileURL = fileURL;
+                    // imageURL字段和fileURL字段重复，但本sdk不做删除，因为在最初版本使用的是imageURL。直接删除可能导致原有用户升级至新版sdk后出现异常。
+                    dataObject.imageURL = fileURL;
                     console.log(dataObject);
                     if (success) {
                         success(dataObject);

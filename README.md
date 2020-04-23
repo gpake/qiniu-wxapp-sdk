@@ -17,8 +17,10 @@ Qiniu-wxapp-SDK
 
 * 增加了文件上传（从客户端会话）功能，支持从客户端会话中选择图片、视频、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）进行上传。
 * demo 页面美化，增加了文件上传（从客户端会话）的UI。
+* 增加了对 "通过fileURL下载文件时，自定义下载名" 的说明与样例。
+* 增加了demo中获取原文件名的功能演示。
 * 补充了更详细的注释，并同步对README.md进行了更新。
-* js 版本更新并兼容。ts 版本已兼容，但未更新优化，ts 版本的更新优化将在日后进行。
+* 本次sdk升级兼容上一版本。js 版本更新并兼容。ts 版本已兼容，但未更新优化，ts 版本的更新优化将在日后进行。
 
 ### 概述
 
@@ -133,12 +135,18 @@ function initQiniu() {
         // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
         uptokenURL: 'https://[yourserver.com]/api/uptoken',
         // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
-        uptokenFunc: function () { },
+        uptokenFunc: function () { 
+        		// do something
+    				return qiniuUploadToken;
+        },
 
         // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
         domain: 'http://[yourBucketId].bkt.clouddn.com',
-        // 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-        shouldUseQiniuFileName: true
+        // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+        // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+        // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+        // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+        shouldUseQiniuFileName: false
     };
     // 将七牛云相关配置初始化进本sdk
     qiniuUploader.init(options);
@@ -265,12 +273,18 @@ var options = {
   // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
   uptokenURL: 'https://[yourserver.com]/api/uptoken',
   // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
-  uptokenFunc: function () { },
+  uptokenFunc: function () {
+    // do something
+    return qiniuUploadToken;
+  },
 
   // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
   domain: 'http://[yourBucketId].bkt.clouddn.com',
-  // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-  shouldUseQiniuFileName: true
+  // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+  // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+  // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+  // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+  shouldUseQiniuFileName: false
 };
 
 // 图片上传（从相册）方法
@@ -304,12 +318,18 @@ function didPressChooesMessageFile(that) {
      // 从指定 url 通过 HTTP GET 获取 uptoken，返回的格式必须是 json 且包含 uptoken 字段，例如： {"uptoken": "0MLvWPnyy..."}
      uptokenURL: 'https://[yourserver.com]/api/uptoken',
      // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
-     uptokenFunc: function () { },
+     uptokenFunc: function () { 
+     	// do something
+       return qiniuUploadToken;
+     },
    
      // bucket 外链域名，下载资源时用到。如果设置，会在 success callback 的 res 参数加上可以直接使用的 fileURL 字段。否则需要自己拼接
      domain: 'http://[yourBucketId].bkt.clouddn.com',
-     // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
-     shouldUseQiniuFileName: true
+     // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
+     // 微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
+     // 自定义上传key 需要两个条件：1. 此处shouldUseQiniuFileName值为false。 2. 通过修改qiniuUploader.upload方法传入的options参数，可以进行自定义key。（请不要直接在sdk中修改options参数，修改方法请见demo的index.js）
+     // 通过fileURL下载文件时，文件自定义下载名，请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）。本sdk在README.md的"常见问题"板块中，有"通过fileURL下载文件时，自定义下载名"使用样例。
+     shouldUseQiniuFileName: false
    };
    ```
    
@@ -325,15 +345,15 @@ function didPressChooesMessageFile(that) {
 <a id="faq"></a>
 ### 常见问题
 
-1. **关于上传文件名**
+1. **关于上传key**
 
-   如果在上传的时候没有指定文件 key，会使用由 qiniu 服务器分配的 key （全局去重）。例如：`` Fh6qfpY...`` （建议的方式）
+   如果在上传的时候没有指定文件 key，会使用 ``wx.chooesImage`` 得到的 tmp filePath 作为文件的 key。例如：`tmp_xxxxxxx.jpg`。
 
-   或者，可以使用 ``wx.chooesImage`` 得到的tmp filePath作为文件的 key。例如：`tmp_xxxxxxx.jpg`。
+   或者，可以使用由 qiniu 服务器分配的 key （全局去重）。例如：`` Fh6qfpY...`` （建议的方式）
 
-   推荐使用七牛云服务器分配的key (全局去重)，微信自动生成的filename杂乱且长。
+   微信自动生成的 filename较长，导致fileURL较长。推荐使用{qiniuShouldUseQiniuFileName: true} + "通过fileURL下载文件时，自定义下载名" 的组合方式。
 
-   详情请见demo中的 ``shouldUseQiniuFileName``  sdk中的 ``qiniuShouldUseQiniuFileName`` 属性。
+   详情请见demo的 ``index.js`` 中的  ``shouldUseQiniuFileName`` 属性，sdk中的 ``qiniuShouldUseQiniuFileName`` 属性。
 
 2. **设置取消上传、暂停上传：**
 
@@ -346,6 +366,13 @@ function didPressChooesMessageFile(that) {
    支持图片文件、视频文件、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）。
 
    demo部分的 ``index.wxml`` 页面有图片上传（从相册）、文件上传（从客户端会话）的UI演示。
+
+4. **通过fileURL下载文件时，自定义下载名**
+
+   请参考：七牛云“对象存储 > 产品手册 > 下载资源 > 下载设置 > 自定义资源下载名”（https://developer.qiniu.com/kodo/manual/1659/download-setting）
+   例如：fileUrl为 ``http://xxx.com/keyyyyy``，直接在浏览器中打开此链接下载的文件，文件名为“keyyyyy”。
+
+   想自定义下载得到的文件名为“myName”，可以通过：``http://xxx.com/keyyyyy?attname=myName`` 来下载，即 "fileUrl" + "?attname=" + "自定义文件名" 的方式。
 
 <a id="contribute-code"></a>
 
