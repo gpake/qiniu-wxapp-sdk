@@ -43,3 +43,13 @@ text {
     background-color: gray;
     margin: 60rpx 0;
 }
+
+/* 输入框 */
+.input {
+    width: 500rpx;
+    height: 56rpx;
+    margin: 30rpx auto;
+    background-color: #f5f5f5;
+    border-radius: 30rpx;
+    padding-left: 25rpx;
+}

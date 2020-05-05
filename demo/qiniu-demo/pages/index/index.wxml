@@ -36,4 +36,16 @@
 		<button bindtap="didPressChooesMessageFile">上传文件</button>
 		<button bindtap='didCancelTask'>中断上传</button>
 	</view>
+		
+	<!-- 分隔符 -->
+	<view class="delimeter"></view>
+
+	<!-- 文件在线查看 -->
+	<view class="title">文件在线查看</view>
+	<view class="data">
+		fileUrl: <input class="input" placeholder="请输入，支持pdf, docx, xlsx, pptx等格式" value="{{viewFileOnlineFileUrl}}" bindconfirm="didPressViewFileOnlineInputConfirm" maxlength="-1" />
+		<text>(输入完请按回车)\n\n</text>
+		加载进度: <text>{{downloadFileProgress.progress}}</text>
+	</view>
+	<button bindtap='didPressViewFileOnline'>点击查看文件</button>
 </view>
