@@ -212,7 +212,7 @@ function didPressChooesMessageFile(that) {
 
 // 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
 function didPressViewFileOnline(that) {
-		// 详情请见demo部分 index.js
+    // 详情请见demo部分 index.js
 }
 ```
 
@@ -316,7 +316,7 @@ function didPressChooesMessageFile(that) {
 
 // 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
 function didPressViewFileOnline(that) {
-		// 详情请见demo部分 index.js
+    // 详情请见demo部分 index.js
 }
 ```
 
