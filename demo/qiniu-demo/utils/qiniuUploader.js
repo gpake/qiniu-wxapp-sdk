@@ -91,7 +91,7 @@
         var formData = {
             'token': config.qiniuUploadToken
         };
-        // 如果是 true，则文件的 key 由 qiniu 服务器分配 (全局去重)。如果是 false，则文件的 key 使用微信自动生成的 filename。默认是 true。建议使用true，微信自动生成的filename杂乱且长
+        // qiniuShouldUseQiniuFileName 如果是 true，则文件的 key 由 qiniu 服务器分配（全局去重）。如果是 false，则文件的 key 使用微信自动生成的 filename。出于初代sdk用户升级后兼容问题的考虑，默认是 false。
         if (!config.qiniuShouldUseQiniuFileName) {
             formData['key'] = fileName
         }

@@ -15,6 +15,8 @@ Qiniu-wxapp-SDK
 
 ### 最近一次修改：
 
+- 增加了文件在线查看功能，支持的文件格式：支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。
+
 * 增加了文件上传（从客户端会话）功能，支持从客户端会话中选择图片、视频、其它文件（PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式）进行上传。
 * demo 页面美化，增加了文件上传（从客户端会话）的UI。
 * 增加了对 "通过fileURL下载文件时，自定义下载名" 的说明与样例。
@@ -40,6 +42,7 @@ Qiniu-wxapp-SDK  为客户端 SDK，没有包含 token 生成实现，为了安
 ### 功能简介
 
 - 上传文件，支持图片文件、视频文件、PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式。
+- 文件在线查看，支持的文件格式：支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。
 
 其他功能在开发中，敬请期待。
 
@@ -164,6 +167,10 @@ Page({
         imageProgress: {},
         // 文件上传（从客户端会话）进度对象。开始上传后，此属性被赋值
         messageFileProgress: {},
+        // 文件在线查看来源fileUrl
+        viewFileOnlineFileUrl: '',
+        // 文件下载进度对象。用于文件在线查看前的预下载
+        downloadFileProgress: {},
         // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
         cancelTask: function () { }
     },
@@ -182,6 +189,11 @@ Page({
         var that = this;
         didPressChooesMessageFile(that);
     },
+    // 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
+    didPressViewFileOnline: function() {
+        var that = this;
+        didPressViewFileOnline(that);
+    },
     // 中断上传方法
     didCancelTask: function () {
         this.data.cancelTask();
@@ -195,6 +207,11 @@ function didPressChooesImage(that) {
 
 // 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
 function didPressChooesMessageFile(that) {
+    // 详情请见demo部分 index.js
+}
+
+// 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
+function didPressViewFileOnline(that) {
     // 详情请见demo部分 index.js
 }
 ```
@@ -294,6 +311,11 @@ function didPressChooesImage(that) {
 
 // 文件上传（从客户端会话）方法，支持图片、视频、其余文件 (PDF(.pdf), Word(.doc/.docx), Excel(.xls/.xlsx), PowerPoint(.ppt/.pptx)等文件格式)
 function didPressChooesMessageFile(that) {
+    // 详情请见demo部分 index.js
+}
+
+// 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
+function didPressViewFileOnline(that) {
     // 详情请见demo部分 index.js
 }
 ```

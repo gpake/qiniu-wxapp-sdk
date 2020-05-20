@@ -39,6 +39,10 @@ Page({
         imageProgress: {},
         // 文件上传（从客户端会话）进度对象。开始上传后，此属性被赋值
         messageFileProgress: {},
+        // 文件在线查看来源fileUrl
+        viewFileOnlineFileUrl: '',
+        // 文件下载进度对象。用于文件在线查看前的预下载
+        downloadFileProgress: {},
         // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
         cancelTask: function () { }
     },
@@ -56,6 +60,16 @@ Page({
     didPressChooesMessageFile: function () {
         var that = this;
         didPressChooesMessageFile(that);
+    },
+    // 在线查看文件的fileUrl输入框，输入完毕后点击确认
+    didPressViewFileOnlineInputConfirm: function (event) {
+        var that = this;
+        didPressViewFileOnlineInputConfirm(that, event);
+    },
+    // 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
+    didPressViewFileOnline: function() {
+        var that = this;
+        didPressViewFileOnline(that);
     },
     // 中断上传方法
     didCancelTask: function () {
@@ -167,4 +181,45 @@ function didPressChooesMessageFile(that) {
             );
         }
     })
+}
+
+// 在线查看文件的fileUrl输入框，输入完毕后点击确认
+function didPressViewFileOnlineInputConfirm(that, event) {
+    console.log(event.detail.value);
+    that.setData({
+        'viewFileOnlineFileUrl': event.detail.value
+    });
+    console.log(that.data.viewFileOnlineFileUrl);
+}
+
+// 在线查看文件，支持的文件格式：pdf, doc, docx, xls, xlsx, ppt, pptx。关于wx.openDocument方法，详情请参考微信官方文档：https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.openDocument.html
+function didPressViewFileOnline(that) {
+    const downloadTask = wx.downloadFile({
+        // url: 'http://[yourBucketId].bkt.clouddn.com/FumUUOIIj...',
+        url: that.data.viewFileOnlineFileUrl,
+        success: function (res) {
+            console.log(res);
+            var filePath = res.tempFilePath;
+            wx.openDocument ({
+                filePath: filePath,
+                success: function (res) {
+                    console.log('打开文档成功');
+                },
+                fail:function(res){
+                    console.log(res);
+                }
+            });
+        },
+        fail:function (res) {
+            console.log(res);
+        }
+    });
+    downloadTask.onProgressUpdate((res) => {
+        that.setData({
+            'downloadFileProgress': res
+        });
+        console.log('下载进度', res.progress);
+        console.log('已经下载的数据长度', res.totalBytesWritten);
+        console.log('预期需要下载的数据总长度', res.totalBytesExpectedToWrite);
+    });
 }
