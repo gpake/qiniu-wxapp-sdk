@@ -1,0 +1,51 @@
+<!--index.wxml-->
+<view class="main">
+	<!-- 图片上传（从相册） -->
+	<view class="title">图片上传（从相册）</view>
+	<view class="image-container">
+		<image class="image" src="{{imageObject.fileURL}}" mode="aspectFit"></image>
+	</view>
+	<!-- 图片参数 -->
+	<view class="data">
+		<!-- hash和key是上传成功后，七牛云返回的对象自带的属性，fileURL是本sdk使用initQiniu()中的属性domain拼接出来的 -->
+		上传进度: <text>{{imageProgress.progress}}\n\n</text>
+		hash: <text>{{imageObject.hash}}\n\n</text>
+		key: <text>{{imageObject.key}}\n\n</text>
+		fileURL: <text selectable='true'>{{imageObject.fileURL}}</text>
+	</view>
+	<view class="button-container">
+		<button bindtap='didPressChooesImage'>上传图片</button>
+		<button bindtap='didCancelTask'>中断上传</button>
+	</view>
+
+	<!-- 分隔符 -->
+	<view class="delimeter"></view>
+
+	<!-- 文件上传（从客户端会话） -->
+	<view class="title">文件上传（从客户端会话）</view>
+	<!-- 文件参数 -->
+	<view class="data">
+		<!-- hash和key是上传成功后，七牛云返回的对象自带的属性，fileURL是本sdk使用initQiniu()中的属性domain拼接出来的 -->
+		上传进度: <text>{{messageFileProgress.progress}}\n\n</text>
+		文件名: <text>{{messageFileObject.fileName}}\n\n</text>
+		hash: <text>{{messageFileObject.hash}}\n\n</text>
+		key: <text>{{messageFileObject.key}}\n\n</text>
+		fileURL: <text selectable='true'>{{messageFileObject.fileURL}}</text>
+	</view>
+	<view class="button-container">
+		<button bindtap="didPressChooesMessageFile">上传文件</button>
+		<button bindtap='didCancelTask'>中断上传</button>
+	</view>
+		
+	<!-- 分隔符 -->
+	<view class="delimeter"></view>
+
+	<!-- 文件在线查看 -->
+	<view class="title">文件在线查看</view>
+	<view class="data">
+		fileUrl: <input class="input" placeholder="请输入，支持pdf, docx, xlsx, pptx等格式" value="{{viewFileOnlineFileUrl}}" bindconfirm="didPressViewFileOnlineInputConfirm" maxlength="-1" />
+		<text>(输入完请按回车)\n\n</text>
+		加载进度: <text>{{downloadFileProgress.progress}}</text>
+	</view>
+	<button bindtap='didPressViewFileOnline'>点击查看文件</button>
+</view>
