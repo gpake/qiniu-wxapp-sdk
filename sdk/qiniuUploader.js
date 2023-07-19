@@ -1,7 +1,7 @@
 (function () {
     // 请参考demo的index.js中的initQiniu()方法，若在使用处对options进行了赋值，则此处config不需要赋默认值。init(options) 即updateConfigWithOptions(options)，会对config进行赋值
     var config = {
-        // bucket 所在区域。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+        // bucket 所在区域。ECN, ECN-2 SCN, NCN, NA, ASG，分别对应七牛云的：华东-浙江，华东-浙江2，华南-广东，华北-河北，北美-洛杉矶，亚太-新加坡（原东南亚） ,6 个区域
         qiniuRegion: '',
         // 七牛云bucket 外链前缀，外链在下载资源时用到
         qiniuBucketURLPrefix: '',
@@ -164,16 +164,17 @@
         })
     }
 
-    // 选择七牛云文件上传接口，文件向匹配的接口中传输。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+    // 选择七牛云文件上传接口，文件向匹配的接口中传输。ECN, ECN-2, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
     function uploadURLFromRegionCode(code) {
         var uploadURL = null;
         switch (code) {
             case 'ECN': uploadURL = 'https://up.qiniup.com'; break;
+            case 'ECN-2': uploadURL = 'https://up-cn-east-2.qiniup.com'; break;
             case 'NCN': uploadURL = 'https://up-z1.qiniup.com'; break;
             case 'SCN': uploadURL = 'https://up-z2.qiniup.com'; break;
             case 'NA': uploadURL = 'https://up-na0.qiniup.com'; break;
             case 'ASG': uploadURL = 'https://up-as0.qiniup.com'; break;
-            default: console.error('please make the region is with one of [ECN, SCN, NCN, NA, ASG]');
+            default: console.error('please make the region is with one of [ECN, ECN-2, SCN, NCN, NA, ASG]');
         }
         return uploadURL;
     }
