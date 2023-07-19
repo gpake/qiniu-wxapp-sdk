@@ -1,7 +1,7 @@
 type TokenFunction = () => string;
 type AnyFunction = (...args: any[]) => any;
 
-export type RegionCode = 'ECN' | 'NCN' | 'SCN' | 'NA' | 'ASG' | '';
+export type RegionCode = 'ECN' | 'ECN-2' | 'NCN' | 'SCN' | 'NA' | 'ASG' | '';
 
 
 interface QiniuConfig {
@@ -43,7 +43,7 @@ export interface QiniuUploadOptions {
 
 
 const config: QiniuConfig = {
-    // bucket 所在区域。ECN, SCN, NCN, NA, ASG，分别对应七牛云的：华东，华南，华北，北美，新加坡 5 个区域
+    // bucket 所在区域。ECN, ECN-2 SCN, NCN, NA, ASG，分别对应七牛云的：华东-浙江，华东-浙江2，华南-广东，华北-河北，北美-洛杉矶，亚太-新加坡（原东南亚） ,6 个区域
     qiniuRegion: '',
     // 七牛云bucket 外链前缀，外链在下载资源时用到
     qiniuBucketURLPrefix: '',
@@ -225,6 +225,9 @@ function uploadURLFromRegionCode(code: RegionCode): string | null {
         case 'ECN':
             uploadURL = 'https://up.qiniup.com';
             break;
+        case 'ECN-2':
+            uploadURL = 'https://up-cn-east-2.qiniup.com';
+            break;
         case 'NCN':
             uploadURL = 'https://up-z1.qiniup.com';
             break;
@@ -239,7 +242,7 @@ function uploadURLFromRegionCode(code: RegionCode): string | null {
             break;
         default:
             console.error(
-                'please make the region is with one of [ECN, SCN, NCN, NA, ASG]'
+                'please make the region is with one of [ECN, ECN-2, SCN, NCN, NA, ASG]'
             );
     }
     return uploadURL;
